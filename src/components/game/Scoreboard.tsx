@@ -10,13 +10,13 @@ type Props = {
 
 function Wickets({ lost }: { lost: number }) {
   return (
-    <div className="flex items-center gap-0.5">
+    <div className="flex items-center gap-1">
       {[0, 1, 2].map((i) => {
         const isLost = i < lost;
         return isLost ? (
-          <HeartCrack key={i} className="h-3 w-3 text-destructive" />
+          <HeartCrack key={i} className="h-4 w-4 text-destructive" />
         ) : (
-          <Heart key={i} className="h-3 w-3 fill-success text-success" />
+          <Heart key={i} className="h-4 w-4 fill-success text-success" />
         );
       })}
     </div>
@@ -31,41 +31,45 @@ export function Scoreboard({ state, onToggleSound }: Props) {
   const oversDisplay = `${Math.floor(state.ballsBowled / 6)}.${state.ballsBowled % 6}`;
   return (
     <div className="sticky top-0 z-20 border-b border-border/60 bg-background/85 backdrop-blur-md">
-      <div className="mx-auto max-w-2xl px-3 py-1.5">
-        <div className="mb-1 flex flex-wrap items-center justify-between gap-1.5 text-[10px] text-muted-foreground">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="rounded-full bg-primary/15 px-1.5 py-0.5 font-semibold text-primary">
-              Inn {state.inning}
+      <div className="mx-auto max-w-2xl px-4 py-3">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-primary/15 px-2 py-0.5 font-semibold text-primary">
+              Innings {state.inning}
             </span>
-            <span className="rounded-full bg-secondary px-1.5 py-0.5 font-semibold">
-              {oversDisplay}/{state.oversPerInnings}ov
+            <span className="rounded-full bg-secondary px-2 py-0.5 font-semibold">
+              {oversDisplay} / {state.oversPerInnings} ov
             </span>
-            <span className="rounded-full bg-secondary/60 px-1.5 py-0.5 font-semibold">
-              {ballsLeft}b left
+            <span className="rounded-full bg-secondary/60 px-2 py-0.5 font-semibold">
+              {ballsLeft} balls left
             </span>
             {state.target !== null && (
-              <span className="flex items-center gap-1 rounded-full bg-accent/20 px-1.5 py-0.5 font-semibold text-accent-foreground">
-                <Target className="h-2.5 w-2.5" />
-                T:{state.target}
+              <span className="flex items-center gap-1 rounded-full bg-accent/20 px-2 py-0.5 font-semibold text-accent-foreground">
+                <Target className="h-3 w-3" />
+                Target: {state.target}
               </span>
             )}
-            {state.activeEvent && <ActiveEventBadge event={state.activeEvent} />}
           </div>
           {onToggleSound && (
             <button
               onClick={onToggleSound}
-              className="rounded-full p-0.5 text-muted-foreground transition hover:bg-secondary hover:text-foreground"
+              className="rounded-full p-1 text-muted-foreground transition hover:bg-secondary hover:text-foreground"
               aria-label="Toggle sound"
             >
               {state.soundOn ? (
-                <Volume2 className="h-3.5 w-3.5" />
+                <Volume2 className="h-4 w-4" />
               ) : (
-                <VolumeX className="h-3.5 w-3.5" />
+                <VolumeX className="h-4 w-4" />
               )}
             </button>
           )}
         </div>
-        <div className="grid grid-cols-2 gap-2">
+        {state.activeEvent && (
+          <div className="mb-2 flex justify-center">
+            <ActiveEventBadge event={state.activeEvent} />
+          </div>
+        )}
+        <div className="grid grid-cols-2 gap-3">
           <TeamPanel
             name={state.player.name}
             score={state.playerScore}
@@ -102,29 +106,29 @@ function TeamPanel({
   return (
     <div
       className={cn(
-        "flex items-center justify-between gap-2 rounded-md border px-2 py-1 transition-all",
+        "rounded-lg border p-2 transition-all",
         batting
           ? "border-primary/60 bg-primary/10"
           : "border-border bg-card/50",
       )}
     >
-      <div className="min-w-0">
-        <div className="flex items-center gap-1">
-          <span className="text-[9px] font-bold tracking-widest text-muted-foreground">
-            {label}
+      <div className="flex items-center justify-between">
+        <span className="text-[10px] font-bold tracking-widest text-muted-foreground">
+          {label}
+        </span>
+        {batting && (
+          <span className="rounded-full bg-primary px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground">
+            BAT
           </span>
-          {batting && (
-            <span className="rounded-full bg-primary px-1 py-0 text-[8px] font-bold text-primary-foreground">
-              BAT
-            </span>
-          )}
-        </div>
-        <div className="truncate text-[11px] font-semibold leading-tight">{name}</div>
+        )}
       </div>
-      <div className="flex flex-col items-end">
-        <div className="text-lg font-black leading-none tracking-tight">
+      <div className="mt-0.5 truncate text-xs font-semibold">{name}</div>
+      <div className="mt-1 flex items-end justify-between">
+        <div className="text-2xl font-black leading-none tracking-tight">
           {score}
-          <span className="text-xs font-bold text-muted-foreground">/{wickets}</span>
+          <span className="text-sm font-bold text-muted-foreground">
+            /{wickets}
+          </span>
         </div>
         <Wickets lost={wickets} />
       </div>
