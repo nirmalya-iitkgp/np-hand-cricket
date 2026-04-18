@@ -527,25 +527,43 @@ function PlayingScreen({
     : "Pick a number to bowl. Match the batter's — WICKET!";
 
   return (
-    <div className="mx-auto max-w-2xl px-4 pt-4 animate-fade-in">
+    <div className="mx-auto max-w-2xl px-3 pt-2 animate-fade-in">
       {state.phase === "innings-break" ? (
         <InningsBreak state={state} onContinue={onContinue} />
       ) : (
         <>
-          <div className="mb-4 text-center">
-            <div className="inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-xs font-bold tracking-widest">
-              YOU ARE {yourRole.toUpperCase()}
-            </div>
-            <p className="mt-2 text-xs text-muted-foreground">{tip}</p>
+          <div className="mb-2 flex items-center justify-center gap-2 text-center">
+            <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold tracking-widest">
+              {yourRole.toUpperCase()}
+            </span>
+            <span className="hidden sm:inline text-[10px] text-muted-foreground">{tip}</span>
           </div>
 
-          {/* Reveal area */}
-          <div className="mb-4 grid grid-cols-2 gap-4">
+          {/* Reveal area with inline event banner */}
+          <div className="relative mb-2 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
             <RevealPanel
               label="YOU"
               move={state.lastPlayerMove}
               revealing={state.revealing}
             />
+            <div className="flex h-8 items-center justify-center">
+              {!state.revealing && state.ballEvent === "out" && (
+                <div className="rounded-full bg-destructive px-2.5 py-1 text-[11px] font-black tracking-widest text-destructive-foreground animate-pop">
+                  💥 OUT
+                </div>
+              )}
+              {!state.revealing && state.ballEvent === "run" && state.lastPlayerMove !== null && (
+                <RunBanner state={state} />
+              )}
+              {state.revealing && (
+                <div className="text-[10px] font-bold tracking-widest text-muted-foreground">
+                  …
+                </div>
+              )}
+              {!state.revealing && state.ballEvent === null && (
+                <div className="text-xs font-black tracking-widest text-muted-foreground">VS</div>
+              )}
+            </div>
             <RevealPanel
               label="CPU"
               move={state.lastCpuMove}
@@ -553,25 +571,8 @@ function PlayingScreen({
             />
           </div>
 
-          {/* Event banner */}
-          <div className="mb-4 flex h-10 items-center justify-center">
-            {!state.revealing && state.ballEvent === "out" && (
-              <div className="rounded-full bg-destructive px-4 py-1.5 text-sm font-black tracking-widest text-destructive-foreground animate-pop">
-                💥 OUT!
-              </div>
-            )}
-            {!state.revealing && state.ballEvent === "run" && state.lastPlayerMove !== null && (
-              <RunBanner state={state} />
-            )}
-            {state.revealing && (
-              <div className="text-sm font-bold tracking-widest text-muted-foreground">
-                REVEALING…
-              </div>
-            )}
-          </div>
-
           {/* Number pad */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
             {[1, 2, 3, 4, 5, 6].map((n) => (
               <NumberButton
                 key={n}
@@ -598,9 +599,9 @@ function RunBanner({ state }: { state: GameState }) {
   else if (ev?.kind === "risk-play" && ev.accepted) multiplier = 3;
   const runs = Math.floor(move * multiplier);
   return (
-    <div className="rounded-full bg-success px-4 py-1.5 text-sm font-black tracking-widest text-success-foreground animate-pop">
-      +{runs} RUN{runs === 1 ? "" : "S"}
-      {multiplier !== 1 && <span className="ml-1 text-warning-foreground">×{multiplier}</span>}
+    <div className="rounded-full bg-success px-2.5 py-1 text-[11px] font-black tracking-widest text-success-foreground animate-pop whitespace-nowrap">
+      +{runs}
+      {multiplier !== 1 && <span className="ml-0.5 text-warning-foreground">×{multiplier}</span>}
     </div>
   );
 }
@@ -615,15 +616,15 @@ function RevealPanel({
   revealing: boolean;
 }) {
   return (
-    <Card className="flex flex-col items-center gap-2 border-2 bg-card/60 p-4">
-      <div className="text-[10px] font-bold tracking-widest text-muted-foreground">
+    <Card className="flex flex-col items-center gap-1 border-2 bg-card/60 p-2">
+      <div className="text-[9px] font-bold tracking-widest text-muted-foreground">
         {label}
       </div>
       <HandIcon
         value={revealing ? null : move}
         hidden={revealing}
         shaking={revealing}
-        className="h-20 w-20"
+        className="h-14 w-14"
       />
     </Card>
   );

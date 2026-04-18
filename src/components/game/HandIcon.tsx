@@ -86,14 +86,14 @@ export function NumberButton({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "group relative flex aspect-square flex-col items-center justify-center gap-1 rounded-2xl border-2 border-border bg-card font-bold transition-all",
+        "group relative flex aspect-square flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-border bg-card font-bold transition-all",
         "hover:border-primary hover:bg-primary/10 hover:shadow-[var(--shadow-glow)] hover:-translate-y-0.5",
         "active:scale-95 active:translate-y-0",
         "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:transform-none disabled:hover:border-border disabled:hover:bg-card disabled:hover:shadow-none",
       )}
     >
-      <span className="text-3xl">{labels[value]}</span>
-      <span className="text-xl text-primary">{value}</span>
+      <span className="text-xl leading-none">{labels[value]}</span>
+      <span className="text-sm leading-none text-primary">{value}</span>
     </button>
   );
 }
