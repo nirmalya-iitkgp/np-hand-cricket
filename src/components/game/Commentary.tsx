@@ -1,54 +1,30 @@
 import type { CommentaryLine } from "@/game/types";
 import { cn } from "@/lib/utils";
-import { useEffect, useRef } from "react";
 import { Mic } from "lucide-react";
 
 export function Commentary({ lines }: { lines: CommentaryLine[] }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = 0;
-    }
-  }, [lines]);
-
-  const recent = lines.slice(-8).reverse();
+  const latest = lines[lines.length - 1];
 
   return (
-    <div className="mx-auto max-w-2xl px-4 pt-3">
-      <div className="rounded-xl border border-border bg-card/60 p-3 backdrop-blur">
-        <div className="mb-2 flex items-center gap-2 text-[10px] font-bold tracking-widest text-muted-foreground">
-          <Mic className="h-3 w-3" />
-          COMMENTARY
-        </div>
-        <div
-          ref={scrollRef}
-          className="max-h-32 space-y-1.5 overflow-y-auto pr-1 text-sm"
+    <div className="mx-auto max-w-2xl px-3 pt-1.5">
+      <div className="flex items-center gap-2 rounded-lg border border-border bg-card/60 px-2.5 py-1.5 backdrop-blur">
+        <Mic className="h-3 w-3 shrink-0 text-muted-foreground" />
+        <p
+          key={latest?.id}
+          className={cn(
+            "min-w-0 flex-1 truncate text-xs leading-tight animate-fade-in",
+            !latest && "italic text-muted-foreground",
+            latest?.kind === "six" && "font-bold text-primary",
+            latest?.kind === "boundary" && "font-semibold text-primary-glow",
+            latest?.kind === "wicket" && "font-bold text-destructive",
+            latest?.kind === "event" && "font-semibold text-warning",
+            latest?.kind === "run" && "text-foreground",
+            latest?.kind === "info" && "italic text-muted-foreground",
+          )}
           aria-live="polite"
         >
-          {recent.length === 0 && (
-            <p className="text-xs italic text-muted-foreground">
-              Match yet to begin…
-            </p>
-          )}
-          {recent.map((l, idx) => (
-            <p
-              key={l.id}
-              className={cn(
-                "leading-snug",
-                idx === 0 && "animate-fade-in font-semibold",
-                l.kind === "six" && "text-primary",
-                l.kind === "boundary" && "text-primary-glow",
-                l.kind === "wicket" && "text-destructive",
-                l.kind === "event" && "text-warning",
-                l.kind === "info" && "text-muted-foreground italic text-xs",
-                idx > 0 && "opacity-70",
-              )}
-            >
-              {l.text}
-            </p>
-          ))}
-        </div>
+          {latest?.text ?? "Match yet to begin…"}
+        </p>
       </div>
     </div>
   );
