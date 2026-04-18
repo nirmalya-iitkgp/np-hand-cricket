@@ -29,18 +29,14 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Hand Cricket" },
-      { name: "description", content: "Remember the high-stakes battles fought under the desk between lectures? Championship Hand Cricket brings the legendary schoolyard game to your screen. No bat," },
+      { title: "Lovable App" },
+      { name: "description", content: "Lovable Generated Project" },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Hand Cricket" },
-      { property: "og:description", content: "Remember the high-stakes battles fought under the desk between lectures? Championship Hand Cricket brings the legendary schoolyard game to your screen. No bat," },
+      { property: "og:title", content: "Lovable App" },
+      { property: "og:description", content: "Lovable Generated Project" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Hand Cricket" },
-      { name: "twitter:description", content: "Remember the high-stakes battles fought under the desk between lectures? Championship Hand Cricket brings the legendary schoolyard game to your screen. No bat," },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3e368281-7315-45c3-874b-2ef219850622/id-preview-18bb0ece--47b514ff-a7e6-4324-aa3c-e3d8057db210.lovable.app-1776490882970.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/3e368281-7315-45c3-874b-2ef219850622/id-preview-18bb0ece--47b514ff-a7e6-4324-aa3c-e3d8057db210.lovable.app-1776490882970.png" },
     ],
     links: [
       {
