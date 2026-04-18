@@ -1,12 +1,24 @@
 import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ROSTER, type Character, type GameState } from "@/game/types";
+import {
+  ROSTER,
+  type Character,
+  type GameState,
+  type CommentaryLine,
+  type SurpriseEventKind,
+} from "@/game/types";
 import { CharacterCard } from "@/components/game/CharacterCard";
 import { Scoreboard } from "@/components/game/Scoreboard";
 import { HandIcon, NumberButton } from "@/components/game/HandIcon";
+import { Commentary } from "@/components/game/Commentary";
+import { EventOfferDialog } from "@/components/game/EventBanner";
+import { SuspenseOverlay } from "@/components/game/SuspenseOverlay";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Trophy, Swords, RotateCcw } from "lucide-react";
+import { buildCommentary, infoLine } from "@/game/commentary";
+import { EVENT_META, eventToActive, maybeTriggerEvent } from "@/game/events";
+import { playSound } from "@/game/sounds";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -16,12 +28,12 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Play Hand Cricket vs the CPU. Pick your champion, choose to bat or bowl, and chase the target across 2 innings with 3 wickets.",
+          "Play Hand Cricket vs the CPU. Pick a champion, set overs, trigger surprise events, with sound, suspense and live commentary.",
       },
       { property: "og:title", content: "Championship Hand Cricket" },
       {
         property: "og:description",
-        content: "Pick a champion. Bat or bowl. Win the match.",
+        content: "Pick a champion. Bat or bowl. Surprise events, commentary, win the match.",
       },
     ],
   }),
@@ -31,8 +43,10 @@ const initialState: GameState = {
   phase: "pickup",
   player: null,
   cpu: null,
+  oversPerInnings: 3,
   inning: 1,
   batter: "player",
+  ballsBowled: 0,
   playerScore: 0,
   playerWickets: 0,
   cpuScore: 0,
@@ -43,6 +57,10 @@ const initialState: GameState = {
   revealing: false,
   ballEvent: null,
   result: null,
+  commentary: [],
+  activeEvent: null,
+  pendingOffer: null,
+  soundOn: true,
 };
 
 function randInt(max: number) {
@@ -52,23 +70,23 @@ function randInt(max: number) {
 function Index() {
   const [state, setState] = useState<GameState>(initialState);
 
-  // Pickup → Versus
   const onPick = (char: Character) => {
     const opponents = ROSTER.filter((c) => c.id !== char.id);
     const cpu = opponents[randInt(opponents.length)];
     setState({ ...initialState, player: char, cpu, phase: "versus" });
   };
 
-  // Versus → Toss
   const goToToss = () => setState((s) => ({ ...s, phase: "toss" }));
 
-  // Toss choice → Playing
-  const chooseInnings = (firstChoice: "bat" | "bowl") => {
+  const chooseInnings = (firstChoice: "bat" | "bowl", overs: number) => {
+    const batter = firstChoice === "bat" ? "player" : "cpu";
     setState((s) => ({
       ...s,
       phase: "playing",
+      oversPerInnings: overs,
       inning: 1,
-      batter: firstChoice === "bat" ? "player" : "cpu",
+      batter,
+      ballsBowled: 0,
       playerScore: 0,
       playerWickets: 0,
       cpuScore: 0,
@@ -78,12 +96,21 @@ function Index() {
       lastCpuMove: null,
       ballEvent: null,
       result: null,
+      activeEvent: null,
+      pendingOffer: null,
+      commentary: [
+        infoLine(`Match begins! ${overs} overs per innings.`),
+        infoLine(
+          `${batter === "player" ? s.player?.name ?? "You" : s.cpu?.name ?? "CPU"} to bat first.`,
+        ),
+      ],
     }));
   };
 
   const playBall = (playerMove: number) => {
-    if (state.revealing || state.phase !== "playing") return;
+    if (state.revealing || state.phase !== "playing" || state.pendingOffer) return;
     const cpuMove = 1 + randInt(6);
+    playSound("whoosh", state.soundOn, 0.3);
     setState((s) => ({
       ...s,
       lastPlayerMove: playerMove,
@@ -93,7 +120,7 @@ function Index() {
     }));
   };
 
-  // Reveal effect: when both moves locked, wait 1s then resolve
+  // Reveal effect: when both moves locked, wait then resolve
   useEffect(() => {
     if (!state.revealing) return;
     const timer = setTimeout(() => {
@@ -102,7 +129,88 @@ function Index() {
     return () => clearTimeout(timer);
   }, [state.revealing]);
 
-  const playAgain = () => setState(initialState);
+  // Maybe offer an event each ball when nothing active and no pending
+  useEffect(() => {
+    if (state.phase !== "playing") return;
+    if (state.activeEvent || state.pendingOffer) return;
+    if (state.revealing) return;
+    if (state.lastPlayerMove !== null) return; // mid-ball
+    const offer = maybeTriggerEvent();
+    if (offer) {
+      if (offer === "risk-play") {
+        setState((s) => ({ ...s, pendingOffer: offer }));
+      } else {
+        // auto-activate
+        const meta = EVENT_META[offer];
+        setState((s) => ({
+          ...s,
+          activeEvent: eventToActive(offer),
+          commentary: [
+            ...s.commentary,
+            infoLine(`${meta.emoji} ${meta.label} activated! ${meta.description}`, "event"),
+          ],
+        }));
+        playSound("cheer", state.soundOn, 0.4);
+      }
+    }
+  }, [state.phase, state.ballsBowled, state.activeEvent, state.pendingOffer, state.revealing, state.lastPlayerMove, state.soundOn]);
+
+  // Side-effect sounds when ballEvent settles
+  useEffect(() => {
+    if (state.revealing) return;
+    if (state.ballEvent === "out") {
+      playSound("wicket", state.soundOn);
+    } else if (state.ballEvent === "run") {
+      const runs =
+        state.batter === "player" ? state.lastPlayerMove : state.lastCpuMove;
+      if (runs === 6) playSound("six", state.soundOn);
+      else if (runs === 4) playSound("four", state.soundOn);
+      else playSound("bat", state.soundOn, 0.4);
+    }
+  }, [state.ballEvent, state.revealing]);
+
+  const acceptRisk = () =>
+    setState((s) => {
+      const meta = EVENT_META["risk-play"];
+      return {
+        ...s,
+        pendingOffer: null,
+        activeEvent: { kind: "risk-play", ballsLeft: 1, accepted: true },
+        commentary: [
+          ...s.commentary,
+          infoLine(`${meta.emoji} Risk Play accepted — high stakes!`, "event"),
+        ],
+      };
+    });
+  const declineRisk = () =>
+    setState((s) => ({
+      ...s,
+      pendingOffer: null,
+      commentary: [...s.commentary, infoLine("Risk Play declined. Safe choice.", "info")],
+    }));
+
+  const continueToInning2 = () =>
+    setState((s) => ({
+      ...s,
+      phase: "playing",
+      inning: 2,
+      batter: s.batter === "player" ? "cpu" : "player",
+      ballsBowled: 0,
+      lastPlayerMove: null,
+      lastCpuMove: null,
+      ballEvent: null,
+      activeEvent: null,
+      pendingOffer: null,
+      commentary: [
+        ...s.commentary,
+        infoLine(
+          `Innings 2 begins. Target: ${s.target}. ${s.batter === "player" ? s.cpu?.name ?? "CPU" : s.player?.name ?? "You"} to chase.`,
+        ),
+      ],
+    }));
+
+  const playAgain = () => setState({ ...initialState, soundOn: state.soundOn });
+  const toggleSound = () => setState((s) => ({ ...s, soundOn: !s.soundOn }));
 
   return (
     <main className="min-h-screen pb-12">
@@ -115,8 +223,21 @@ function Index() {
       )}
       {(state.phase === "playing" || state.phase === "innings-break") && (
         <>
-          <Scoreboard state={state} />
-          <PlayingScreen state={state} onPlay={playBall} onContinue={() => continueToInning2(setState)} />
+          <Scoreboard state={state} onToggleSound={toggleSound} />
+          <Commentary lines={state.commentary} />
+          <PlayingScreen
+            state={state}
+            onPlay={playBall}
+            onContinue={continueToInning2}
+          />
+          {state.pendingOffer && (
+            <EventOfferDialog
+              kind={state.pendingOffer}
+              onAccept={acceptRisk}
+              onDecline={declineRisk}
+            />
+          )}
+          <SuspenseOverlay active={state.revealing} />
         </>
       )}
       {state.phase === "result" && (
@@ -126,18 +247,6 @@ function Index() {
   );
 }
 
-function continueToInning2(setState: React.Dispatch<React.SetStateAction<GameState>>) {
-  setState((s) => ({
-    ...s,
-    phase: "playing",
-    inning: 2,
-    batter: s.batter === "player" ? "cpu" : "player",
-    lastPlayerMove: null,
-    lastCpuMove: null,
-    ballEvent: null,
-  }));
-}
-
 function resolveBall(s: GameState): GameState {
   if (s.lastPlayerMove === null || s.lastCpuMove === null) {
     return { ...s, revealing: false };
@@ -145,60 +254,107 @@ function resolveBall(s: GameState): GameState {
   const batterIsPlayer = s.batter === "player";
   const batterMove = batterIsPlayer ? s.lastPlayerMove : s.lastCpuMove;
   const bowlerMove = batterIsPlayer ? s.lastCpuMove : s.lastPlayerMove;
-  const isOut = batterMove === bowlerMove;
+  const batterName = batterIsPlayer ? s.player?.name ?? "You" : s.cpu?.name ?? "CPU";
+  const bowlerName = batterIsPlayer ? s.cpu?.name ?? "CPU" : s.player?.name ?? "You";
 
-  let next: GameState = { ...s, revealing: false };
+  const ev = s.activeEvent;
+  let isOut = batterMove === bowlerMove;
 
-  if (isOut) {
-    next.ballEvent = "out";
-    if (batterIsPlayer) {
-      next.playerWickets = s.playerWickets + 1;
-    } else {
-      next.cpuWickets = s.cpuWickets + 1;
-    }
-  } else {
-    next.ballEvent = "run";
-    if (batterIsPlayer) {
-      next.playerScore = s.playerScore + batterMove;
-    } else {
-      next.cpuScore = s.cpuScore + batterMove;
-    }
+  // Free hit: never out, runs forced to 0 if matched
+  if (ev?.kind === "free-hit") {
+    isOut = false;
+  }
+  // Powerplay: a '1' from bowler doesn't take wicket
+  if (ev?.kind === "powerplay" && bowlerMove === 1 && isOut) {
+    isOut = false;
   }
 
-  // Check innings/match end
+  // Compute runs/multiplier
+  let runs = isOut ? 0 : batterMove;
+  let multiplier = 1;
+  if (!isOut) {
+    if (ev?.kind === "double-runs") multiplier = 2;
+    else if (ev?.kind === "powerplay") multiplier = 1.5;
+    else if (ev?.kind === "risk-play" && ev.accepted) multiplier = 3;
+    runs = Math.floor(runs * multiplier);
+    // Free hit on a "match" gives 0 runs (lucky escape)
+    if (ev?.kind === "free-hit" && batterMove === bowlerMove) runs = 0;
+  }
+
+  let next: GameState = {
+    ...s,
+    revealing: false,
+    ballsBowled: s.ballsBowled + 1,
+  };
+
+  // Wicket loss (risk-play accepted = lose 2 wickets on out)
+  const wicketLoss = isOut
+    ? ev?.kind === "risk-play" && ev.accepted
+      ? 2
+      : 1
+    : 0;
+
+  let commentaryLine: CommentaryLine;
+  if (isOut) {
+    next.ballEvent = "out";
+    if (batterIsPlayer) next.playerWickets = Math.min(3, s.playerWickets + wicketLoss);
+    else next.cpuWickets = Math.min(3, s.cpuWickets + wicketLoss);
+    commentaryLine = buildCommentary({ outcome: "out", runs: 0, batterName, bowlerName });
+  } else {
+    next.ballEvent = "run";
+    if (batterIsPlayer) next.playerScore = s.playerScore + runs;
+    else next.cpuScore = s.cpuScore + runs;
+    commentaryLine = buildCommentary({
+      outcome: "run",
+      runs,
+      batterName,
+      bowlerName,
+      multiplier: multiplier !== 1 ? multiplier : undefined,
+    });
+  }
+  next.commentary = [...s.commentary, commentaryLine];
+
+  // Decrement / clear active event
+  if (next.activeEvent) {
+    const left = next.activeEvent.ballsLeft - 1;
+    next.activeEvent = left > 0 ? { ...next.activeEvent, ballsLeft: left } : null;
+  }
+
+  // Innings/match end checks
   const battingScore = batterIsPlayer ? next.playerScore : next.cpuScore;
   const battingWickets = batterIsPlayer ? next.playerWickets : next.cpuWickets;
   const allOut = battingWickets >= 3;
+  const oversDone = next.ballsBowled >= next.oversPerInnings * 6;
   const targetChased = next.target !== null && battingScore >= next.target;
 
-  if (next.inning === 1 && allOut) {
-    // End innings 1
+  if (next.inning === 1 && (allOut || oversDone)) {
     next.target = battingScore + 1;
     next.phase = "innings-break";
+    next.commentary = [
+      ...next.commentary,
+      infoLine(
+        `End of Innings 1. ${batterName}: ${battingScore}/${battingWickets}. Target: ${next.target}.`,
+      ),
+    ];
     return next;
   }
 
   if (next.inning === 2) {
     if (targetChased) {
-      // Batting side wins
       const winnerName = batterIsPlayer ? "You" : (s.cpu?.name ?? "CPU");
       const wicketsLeft = 3 - battingWickets;
       next.phase = "result";
       next.result = `${winnerName} won by ${wicketsLeft} wicket${wicketsLeft === 1 ? "" : "s"}`;
       return next;
     }
-    if (allOut) {
-      // Bowling side wins (defended target)
+    if (allOut || oversDone) {
       const targetVal = next.target ?? 0;
       const margin = targetVal - 1 - battingScore;
       const winnerIsPlayer = !batterIsPlayer;
       const winnerName = winnerIsPlayer ? "You" : (s.cpu?.name ?? "CPU");
       next.phase = "result";
-      if (margin === 0) {
-        next.result = "Match Tied!";
-      } else {
-        next.result = `${winnerName} won by ${margin} run${margin === 1 ? "" : "s"}`;
-      }
+      if (margin === 0) next.result = "Match Tied!";
+      else next.result = `${winnerName} won by ${margin} run${margin === 1 ? "" : "s"}`;
       return next;
     }
   }
@@ -230,7 +386,7 @@ function PickupScreen({ onPick }: { onPick: (c: Character) => void }) {
       </div>
 
       <p className="mt-6 text-center text-xs text-muted-foreground">
-        2 Innings · 3 Wickets · Match the bowler's number and you're OUT
+        2 Innings · 3 Wickets · Configurable Overs · Surprise Events
       </p>
     </div>
   );
@@ -294,18 +450,48 @@ function VersusScreen({
   );
 }
 
-function TossScreen({ onChoose }: { onChoose: (c: "bat" | "bowl") => void }) {
+function TossScreen({
+  onChoose,
+}: {
+  onChoose: (c: "bat" | "bowl", overs: number) => void;
+}) {
+  const [overs, setOvers] = useState<number>(3);
   return (
     <div className="mx-auto flex min-h-[80vh] max-w-md flex-col items-center justify-center px-4 animate-fade-in">
       <div className="mb-2 text-xs font-bold tracking-[0.3em] text-muted-foreground">
         YOU WON THE TOSS
       </div>
-      <h2 className="mb-8 text-center text-3xl font-black tracking-tight">
+      <h2 className="mb-6 text-center text-3xl font-black tracking-tight">
         Bat or Bowl?
       </h2>
+
+      <div className="mb-6 w-full">
+        <div className="mb-2 text-center text-xs font-bold tracking-widest text-muted-foreground">
+          OVERS PER INNINGS
+        </div>
+        <div className="grid grid-cols-4 gap-2">
+          {[2, 3, 4, 5].map((n) => (
+            <button
+              key={n}
+              onClick={() => setOvers(n)}
+              className={`rounded-xl border-2 py-2 text-sm font-black transition-all ${
+                overs === n
+                  ? "border-primary bg-primary/15 text-primary"
+                  : "border-border bg-card hover:border-primary/50"
+              }`}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+        <p className="mt-2 text-center text-xs text-muted-foreground">
+          {overs * 6} balls per innings
+        </p>
+      </div>
+
       <div className="grid w-full grid-cols-2 gap-4">
         <button
-          onClick={() => onChoose("bat")}
+          onClick={() => onChoose("bat", overs)}
           className="group flex flex-col items-center gap-2 rounded-2xl border-2 border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary hover:shadow-[var(--shadow-glow)]"
         >
           <span className="text-4xl">🏏</span>
@@ -313,7 +499,7 @@ function TossScreen({ onChoose }: { onChoose: (c: "bat" | "bowl") => void }) {
           <span className="text-xs text-muted-foreground">Set the target</span>
         </button>
         <button
-          onClick={() => onChoose("bowl")}
+          onClick={() => onChoose("bowl", overs)}
           className="group flex flex-col items-center gap-2 rounded-2xl border-2 border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary hover:shadow-[var(--shadow-glow)]"
         >
           <span className="text-4xl">🎯</span>
@@ -337,11 +523,11 @@ function PlayingScreen({
   const batterIsPlayer = state.batter === "player";
   const yourRole = batterIsPlayer ? "Batting" : "Bowling";
   const tip = batterIsPlayer
-    ? "Pick a number to score runs. If it matches the bowler's — you're OUT."
-    : "Pick a number to bowl. If it matches the batter's — WICKET!";
+    ? "Pick a number to score runs. Match the bowler's — you're OUT."
+    : "Pick a number to bowl. Match the batter's — WICKET!";
 
   return (
-    <div className="mx-auto max-w-2xl px-4 pt-6 animate-fade-in">
+    <div className="mx-auto max-w-2xl px-4 pt-4 animate-fade-in">
       {state.phase === "innings-break" ? (
         <InningsBreak state={state} onContinue={onContinue} />
       ) : (
@@ -354,7 +540,7 @@ function PlayingScreen({
           </div>
 
           {/* Reveal area */}
-          <div className="mb-6 grid grid-cols-2 gap-4">
+          <div className="mb-4 grid grid-cols-2 gap-4">
             <RevealPanel
               label="YOU"
               move={state.lastPlayerMove}
@@ -368,17 +554,14 @@ function PlayingScreen({
           </div>
 
           {/* Event banner */}
-          <div className="mb-6 flex h-10 items-center justify-center">
+          <div className="mb-4 flex h-10 items-center justify-center">
             {!state.revealing && state.ballEvent === "out" && (
               <div className="rounded-full bg-destructive px-4 py-1.5 text-sm font-black tracking-widest text-destructive-foreground animate-pop">
                 💥 OUT!
               </div>
             )}
             {!state.revealing && state.ballEvent === "run" && state.lastPlayerMove !== null && (
-              <div className="rounded-full bg-success px-4 py-1.5 text-sm font-black tracking-widest text-success-foreground animate-pop">
-                +{batterIsPlayer ? state.lastPlayerMove : state.lastCpuMove} RUN
-                {(batterIsPlayer ? state.lastPlayerMove : state.lastCpuMove) === 1 ? "" : "S"}
-              </div>
+              <RunBanner state={state} />
             )}
             {state.revealing && (
               <div className="text-sm font-bold tracking-widest text-muted-foreground">
@@ -394,12 +577,30 @@ function PlayingScreen({
                 key={n}
                 value={n}
                 onClick={() => onPlay(n)}
-                disabled={state.revealing}
+                disabled={state.revealing || !!state.pendingOffer}
               />
             ))}
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+function RunBanner({ state }: { state: GameState }) {
+  const batterIsPlayer = state.batter === "player";
+  const move = batterIsPlayer ? state.lastPlayerMove : state.lastCpuMove;
+  if (move === null) return null;
+  const ev = state.activeEvent;
+  let multiplier = 1;
+  if (ev?.kind === "double-runs") multiplier = 2;
+  else if (ev?.kind === "powerplay") multiplier = 1.5;
+  else if (ev?.kind === "risk-play" && ev.accepted) multiplier = 3;
+  const runs = Math.floor(move * multiplier);
+  return (
+    <div className="rounded-full bg-success px-4 py-1.5 text-sm font-black tracking-widest text-success-foreground animate-pop">
+      +{runs} RUN{runs === 1 ? "" : "S"}
+      {multiplier !== 1 && <span className="ml-1 text-warning-foreground">×{multiplier}</span>}
     </div>
   );
 }
@@ -447,7 +648,7 @@ function InningsBreak({
           {state.target}
         </div>
         <div className="text-sm text-muted-foreground">
-          Need {state.target} run{state.target === 1 ? "" : "s"} in 3 wickets
+          Need {state.target} run{state.target === 1 ? "" : "s"} in {state.oversPerInnings} overs · 3 wickets
         </div>
       </Card>
       <Button size="lg" onClick={onContinue} className="w-full font-bold">
