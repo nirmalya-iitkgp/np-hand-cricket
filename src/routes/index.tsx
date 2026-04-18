@@ -616,15 +616,15 @@ function RevealPanel({
   revealing: boolean;
 }) {
   return (
-    <Card className="flex flex-col items-center gap-2 border-2 bg-card/60 p-4">
-      <div className="text-[10px] font-bold tracking-widest text-muted-foreground">
+    <Card className="flex flex-col items-center gap-1 border-2 bg-card/60 p-2">
+      <div className="text-[9px] font-bold tracking-widest text-muted-foreground">
         {label}
       </div>
       <HandIcon
         value={revealing ? null : move}
         hidden={revealing}
         shaking={revealing}
-        className="h-20 w-20"
+        className="h-14 w-14"
       />
     </Card>
   );
