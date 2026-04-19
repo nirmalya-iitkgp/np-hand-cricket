@@ -209,6 +209,7 @@ function Index() {
     if (state.revealing) return;
     if (state.ballEvent === "out") {
       playSound("wicket", state.soundOn);
+      shakeScreen();
     }
   }, [state.ballEvent, state.revealing, state.soundOn]);
 
@@ -216,7 +217,29 @@ function Index() {
     if (state.phase === "innings-break" || state.phase === "result") {
       playSound("innings", state.soundOn, 0.4);
     }
-  }, [state.phase, state.soundOn]);
+    if (state.phase === "result") {
+      const youWon = state.result?.startsWith("You");
+      if (youWon) fireConfetti({ count: 140, durationMs: 3000 });
+    }
+  }, [state.phase, state.soundOn, state.result]);
+
+  // Century confetti — fires once when either side crosses 100
+  const playerCenturyRef = useRef(false);
+  const cpuCenturyRef = useRef(false);
+  useEffect(() => {
+    if (state.playerScore >= 100 && !playerCenturyRef.current) {
+      playerCenturyRef.current = true;
+      fireConfetti({ count: 80 });
+    }
+    if (state.cpuScore >= 100 && !cpuCenturyRef.current) {
+      cpuCenturyRef.current = true;
+      fireConfetti({ count: 80 });
+    }
+    if (state.phase === "pickup") {
+      playerCenturyRef.current = false;
+      cpuCenturyRef.current = false;
+    }
+  }, [state.playerScore, state.cpuScore, state.phase]);
 
   // Player Yorker action — player can use once per over while bowling
   const useYorker = () => {
