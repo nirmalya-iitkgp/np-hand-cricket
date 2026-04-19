@@ -1,10 +1,30 @@
 import { cn } from "@/lib/utils";
 
+export type ActionMode = "bat" | "bowl";
+
+const BAT_LABELS: Record<number, { emoji: string; label: string }> = {
+  1: { emoji: "👆", label: "Tap" },
+  2: { emoji: "🤜", label: "Push" },
+  3: { emoji: "💨", label: "Drive" },
+  4: { emoji: "🎯", label: "Boundary" },
+  5: { emoji: "🚀", label: "Lift" },
+  6: { emoji: "💥", label: "Big Hit" },
+};
+
+const BOWL_LABELS: Record<number, { emoji: string; label: string }> = {
+  1: { emoji: "🐢", label: "Slow" },
+  2: { emoji: "🌀", label: "Spin" },
+  3: { emoji: "🎯", label: "Yorker" },
+  4: { emoji: "⚡", label: "Pace" },
+  5: { emoji: "🔥", label: "Bouncer" },
+  6: { emoji: "💀", label: "Express" },
+};
+
 const FINGER_EMOJI: Record<number, string> = {
   1: "☝️",
   2: "✌️",
   3: "🤟",
-  4: "four",
+  4: "✋",
   5: "🖐️",
   6: "👍",
 };
@@ -24,7 +44,7 @@ export function HandIcon({
     return (
       <div
         className={cn(
-          "flex items-center justify-center rounded-2xl bg-muted text-4xl",
+          "flex items-center justify-center rounded-2xl bg-muted text-3xl",
           shaking && "animate-shake",
           className,
         )}
@@ -54,7 +74,7 @@ export function HandIcon({
   return (
     <div
       className={cn(
-        "flex items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-primary-glow/20 text-4xl animate-reveal",
+        "flex items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-primary-glow/20 text-3xl animate-reveal",
         className,
       )}
     >
@@ -65,21 +85,16 @@ export function HandIcon({
 
 export function NumberButton({
   value,
+  mode,
   onClick,
   disabled,
 }: {
   value: number;
+  mode: ActionMode;
   onClick: () => void;
   disabled?: boolean;
 }) {
-  const labels: Record<number, string> = {
-    1: "☝️",
-    2: "✌️",
-    3: "🤟",
-    4: "✋",
-    5: "🖐️",
-    6: "👍",
-  };
+  const meta = mode === "bat" ? BAT_LABELS[value] : BOWL_LABELS[value];
   return (
     <button
       type="button"
@@ -92,8 +107,11 @@ export function NumberButton({
         "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:transform-none disabled:hover:border-border disabled:hover:bg-card disabled:hover:shadow-none",
       )}
     >
-      <span className="text-xl leading-none">{labels[value]}</span>
-      <span className="text-sm leading-none text-primary">{value}</span>
+      <span className="text-base leading-none">{meta.emoji}</span>
+      <span className="text-[9px] uppercase leading-none tracking-wide text-muted-foreground">
+        {meta.label}
+      </span>
+      <span className="text-[10px] font-black leading-none text-primary">{value}</span>
     </button>
   );
 }

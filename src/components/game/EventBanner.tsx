@@ -12,7 +12,9 @@ export function ActiveEventBadge({ event }: { event: ActiveEvent }) {
         ? "bg-warning/20 text-warning border-warning/50"
         : meta.color === "destructive"
           ? "bg-destructive/20 text-destructive border-destructive/50"
-          : "bg-accent/20 text-accent-foreground border-accent/50";
+          : meta.color === "success"
+            ? "bg-success/20 text-success border-success/50"
+            : "bg-accent/20 text-accent-foreground border-accent/50";
   return (
     <div
       className={cn(

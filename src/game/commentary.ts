@@ -57,25 +57,32 @@ export function buildCommentary(args: {
   batterName: string;
   bowlerName: string;
   multiplier?: number;
+  bonus?: string;
 }): CommentaryLine {
-  const { outcome, runs, batterName, bowlerName, multiplier } = args;
+  const { outcome, runs, batterName, bowlerName, multiplier, bonus } = args;
   counter += 1;
   if (outcome === "out") {
-    const text = pick(WICKET_PHRASES).replace("{name}", batterName) +
-      ` (b ${bowlerName})`;
+    const text = pick(WICKET_PHRASES).replace("{name}", batterName) + ` (b ${bowlerName})`;
     return { id: counter, text, kind: "wicket" };
   }
+  const tag = (s: string) => {
+    let t = s;
+    if (multiplier && multiplier !== 1) t += ` ×${multiplier}`;
+    if (bonus) t += ` ${bonus}`;
+    return t;
+  };
   if (runs >= 6) {
-    const base = pick(SIX_PHRASES).replace("{name}", batterName);
-    return { id: counter, text: multiplier && multiplier > 1 ? `${base} ×${multiplier}!` : base, kind: "six" };
+    return { id: counter, text: tag(pick(SIX_PHRASES).replace("{name}", batterName)), kind: "six" };
   }
   if (runs >= 4) {
-    const base = pick(FOUR_PHRASES).replace("{name}", batterName);
-    return { id: counter, text: multiplier && multiplier > 1 ? `${base} ×${multiplier}!` : base, kind: "boundary" };
+    return { id: counter, text: tag(pick(FOUR_PHRASES).replace("{name}", batterName)), kind: "boundary" };
+  }
+  if (runs === 0) {
+    return { id: counter, text: `Dot ball — no run for ${batterName}.`, kind: "run" };
   }
   const phrases = SMALL_RUN_PHRASES[runs] ?? ["{name} adds {runs}."];
   const base = pick(phrases).replace("{name}", batterName).replace("{runs}", String(runs));
-  return { id: counter, text: multiplier && multiplier > 1 ? `${base} (×${multiplier})` : base, kind: "run" };
+  return { id: counter, text: tag(base), kind: "run" };
 }
 
 export function infoLine(text: string, kind: CommentaryLine["kind"] = "info"): CommentaryLine {
