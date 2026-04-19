@@ -463,6 +463,19 @@ function resolveBall(s: GameState): GameState {
       }
     }
   }
+
+  // Lifeline consumption + commentary
+  if (lifelineUsed) {
+    newBatterAbility.lifelineAvailable = false;
+    next.commentary = [
+      ...next.commentary,
+      infoLine(
+        `🛟 ${batterName} used their LIFELINE — survives the tie, runs halved!`,
+        "event",
+      ),
+    ];
+  }
+
   next[batterAbilityKey] = newBatterAbility;
 
   // Yorker active flag is consumed each ball
