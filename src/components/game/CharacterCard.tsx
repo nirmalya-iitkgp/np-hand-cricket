@@ -1,5 +1,10 @@
 import type { Character } from "@/game/types";
 import { Card } from "@/components/ui/card";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import { cn } from "@/lib/utils";
 import { Sparkles } from "lucide-react";
 
@@ -11,68 +16,102 @@ type Props = {
 };
 
 const ROLE_BADGE: Record<string, string> = {
-  Batsman: "bg-primary/15 text-primary",
-  Batswoman: "bg-primary/15 text-primary",
-  Bowler: "bg-destructive/15 text-destructive",
-  Bowlerwoman: "bg-destructive/15 text-destructive",
-  "All-Rounder": "bg-warning/15 text-warning",
+  Batsman: "bg-primary/20 text-primary",
+  Batswoman: "bg-primary/20 text-primary",
+  Bowler: "bg-destructive/20 text-destructive",
+  Bowlerwoman: "bg-destructive/20 text-destructive",
+  "All-Rounder": "bg-warning/20 text-warning",
 };
 
-export function CharacterCard({ character, selected, onClick, compact }: Props) {
+const ROLE_SHORT: Record<string, string> = {
+  Batsman: "BAT",
+  Batswoman: "BAT",
+  Bowler: "BOWL",
+  Bowlerwoman: "BOWL",
+  "All-Rounder": "AR",
+};
+
+export function CharacterCard({ character, selected, onClick }: Props) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "group w-full text-left transition-all duration-200",
-        onClick && "hover:scale-[1.02] active:scale-[0.98]",
-      )}
-    >
-      <Card
-        className={cn(
-          "relative overflow-hidden border-2 p-3 transition-all",
-          "bg-card/80 backdrop-blur",
-          selected
-            ? "border-primary shadow-[var(--shadow-glow)]"
-            : "border-border hover:border-primary/60",
-          compact && "p-2",
-        )}
-      >
-        <div className="flex items-center gap-2.5">
-          <div
+    <HoverCard openDelay={120} closeDelay={50}>
+      <HoverCardTrigger asChild>
+        <button
+          type="button"
+          onClick={onClick}
+          className={cn(
+            "group w-full text-left transition-all duration-200",
+            onClick && "hover:-translate-y-0.5 active:scale-[0.97]",
+          )}
+        >
+          <Card
             className={cn(
-              "flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-glow text-primary-foreground",
-              compact ? "h-9 w-9 text-lg" : "h-11 w-11 text-xl",
+              "relative overflow-hidden border p-2 transition-all",
+              "bg-card/40 backdrop-blur-md",
+              "shadow-[0_4px_16px_-6px_oklch(0.1_0.04_260_/_0.6)]",
+              selected
+                ? "border-primary shadow-[var(--shadow-glow)]"
+                : "border-white/10 hover:border-primary/70 hover:bg-card/60",
             )}
           >
-            {character.emoji}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1.5">
-              <span className="truncate text-sm font-bold tracking-tight">
-                {character.name}
-              </span>
-              <span className="shrink-0 text-[9px] text-muted-foreground">
-                {character.country}
-              </span>
-            </div>
-            <div className="mt-0.5 flex items-center gap-1">
-              <span
+            <div className="flex items-center gap-2">
+              <div
                 className={cn(
-                  "rounded-full px-1.5 py-0 text-[9px] font-bold",
-                  ROLE_BADGE[character.role] ?? "bg-secondary text-foreground",
+                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-glow text-base text-primary-foreground shadow-inner",
                 )}
               >
-                {character.role}
-              </span>
-              <span className="flex items-center gap-0.5 truncate text-[9px] text-accent">
-                <Sparkles className="h-2.5 w-2.5" />
-                {character.abilityLabel}
-              </span>
+                {character.emoji}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-[11px] font-bold leading-tight tracking-tight">
+                  {character.name}
+                </div>
+                <div className="mt-0.5 flex items-center gap-1">
+                  <span
+                    className={cn(
+                      "rounded-full px-1 py-0 text-[8px] font-black tracking-wider",
+                      ROLE_BADGE[character.role] ?? "bg-secondary text-foreground",
+                    )}
+                  >
+                    {ROLE_SHORT[character.role]}
+                  </span>
+                  <span className="truncate text-[8px] font-semibold text-muted-foreground">
+                    {character.country}
+                  </span>
+                  <Sparkles className="h-2 w-2 shrink-0 text-accent" />
+                </div>
+              </div>
+            </div>
+          </Card>
+        </button>
+      </HoverCardTrigger>
+      <HoverCardContent
+        side="top"
+        align="center"
+        className="w-64 border border-primary/40 bg-card/95 backdrop-blur-xl"
+      >
+        <div className="flex items-start gap-2">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-glow text-lg">
+            {character.emoji}
+          </div>
+          <div className="min-w-0">
+            <div className="text-sm font-black tracking-tight">
+              {character.name}
+            </div>
+            <div className="text-[10px] text-muted-foreground">
+              {character.country} · {character.role}
             </div>
           </div>
         </div>
-      </Card>
-    </button>
+        <div className="mt-3 rounded-lg border border-accent/40 bg-accent/10 p-2">
+          <div className="flex items-center gap-1 text-[10px] font-black tracking-widest text-accent">
+            <Sparkles className="h-3 w-3" />
+            ABILITY · {character.abilityLabel.toUpperCase()}
+          </div>
+          <p className="mt-1 text-xs leading-snug text-foreground/90">
+            {character.abilityDesc}
+          </p>
+        </div>
+      </HoverCardContent>
+    </HoverCard>
   );
 }
