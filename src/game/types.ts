@@ -1,6 +1,11 @@
 export type Role = "Batsman" | "Batswoman" | "Bowler" | "Bowlerwoman" | "All-Rounder";
 
-export type AbilityKind = "concentration" | "yorker" | "allrounder-event";
+export type AbilityKind =
+  | "concentration"
+  | "yorker"
+  | "allrounder-event"
+  | "lifeline"
+  | "runs-boost";
 
 export type Character = {
   id: string;
@@ -122,6 +127,8 @@ export type AbilityState = {
   yorkerUsedThisOver: boolean;
   /** Yorker pending — opponent's next pick is constrained to 1-3 */
   yorkerActive: boolean;
+  /** Lifeline (batsman): unused = available; if a tie occurs, no out — score halved instead */
+  lifelineAvailable: boolean;
 };
 
 export type GameState = {
