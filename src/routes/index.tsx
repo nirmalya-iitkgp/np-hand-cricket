@@ -22,6 +22,7 @@ import { buildCommentary, infoLine } from "@/game/commentary";
 import { EVENT_META, eventToActive, maybeTriggerEvent } from "@/game/events";
 import { chooseCpuMove } from "@/game/ai";
 import { playSound } from "@/game/sounds";
+import { fireConfetti, shakeScreen } from "@/game/effects";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -48,6 +49,7 @@ const emptyAbility: AbilityState = {
   concentrationArmed: false,
   yorkerUsedThisOver: false,
   yorkerActive: false,
+  lifelineAvailable: true,
 };
 
 const initialState: GameState = {
