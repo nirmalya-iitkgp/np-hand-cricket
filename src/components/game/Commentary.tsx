@@ -1,30 +1,52 @@
 import type { CommentaryLine } from "@/game/types";
 import { cn } from "@/lib/utils";
 import { Mic } from "lucide-react";
+import { useEffect, useRef } from "react";
 
+/** Full match log with auto-scroll to the latest line. */
 export function Commentary({ lines }: { lines: CommentaryLine[] }) {
-  const latest = lines[lines.length - 1];
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (ref.current) ref.current.scrollTop = ref.current.scrollHeight;
+  }, [lines.length]);
+
+  const display = lines.length > 0 ? lines : null;
 
   return (
     <div className="mx-auto max-w-2xl px-3 pt-1.5">
-      <div className="flex items-center gap-2 rounded-lg border border-border bg-card/60 px-2.5 py-1.5 backdrop-blur">
-        <Mic className="h-3 w-3 shrink-0 text-muted-foreground" />
-        <p
-          key={latest?.id}
-          className={cn(
-            "min-w-0 flex-1 truncate text-xs leading-tight animate-fade-in",
-            !latest && "italic text-muted-foreground",
-            latest?.kind === "six" && "font-bold text-primary",
-            latest?.kind === "boundary" && "font-semibold text-primary-glow",
-            latest?.kind === "wicket" && "font-bold text-destructive",
-            latest?.kind === "event" && "font-semibold text-warning",
-            latest?.kind === "run" && "text-foreground",
-            latest?.kind === "info" && "italic text-muted-foreground",
-          )}
+      <div className="rounded-lg border border-border bg-card/60 backdrop-blur">
+        <div className="flex items-center gap-1.5 border-b border-border/50 px-2.5 py-1">
+          <Mic className="h-3 w-3 text-primary" />
+          <span className="text-[9px] font-bold tracking-widest text-muted-foreground">
+            LIVE COMMENTARY
+          </span>
+        </div>
+        <div
+          ref={ref}
+          className="max-h-24 overflow-y-auto px-2.5 py-1.5 text-xs leading-snug"
           aria-live="polite"
         >
-          {latest?.text ?? "Match yet to begin…"}
-        </p>
+          {display ? (
+            display.map((l) => (
+              <p
+                key={l.id}
+                className={cn(
+                  "py-0.5",
+                  l.kind === "six" && "font-bold text-primary",
+                  l.kind === "boundary" && "font-semibold text-primary-glow",
+                  l.kind === "wicket" && "font-bold text-destructive",
+                  l.kind === "event" && "font-semibold text-warning",
+                  l.kind === "run" && "text-foreground",
+                  l.kind === "info" && "italic text-muted-foreground",
+                )}
+              >
+                {l.text}
+              </p>
+            ))
+          ) : (
+            <p className="italic text-muted-foreground">Match yet to begin…</p>
+          )}
+        </div>
       </div>
     </div>
   );
