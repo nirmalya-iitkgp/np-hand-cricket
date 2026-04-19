@@ -384,6 +384,20 @@ function resolveBall(s: GameState): GameState {
     ) {
       runs = 5;
       bonus = `${bonus} 🧠 +1 concentration!`.trim();
+    // Runs-boost ability — all-rounder bonus run 15% of the time on safe ball
+    if (
+      batter?.ability === "runs-boost" &&
+      runs > 0 &&
+      Math.random() < 0.15
+    ) {
+      runs += 1;
+      bonus = `${bonus} ⚡ +1 boost!`.trim();
+    }
+
+    // Lifeline triggered this ball — halve runs as the cost of saving the wicket
+    if (lifelineUsed) {
+      runs = Math.floor(batterMove / 2);
+      bonus = `🛟 LIFELINE used — runs halved`;
     }
   }
 
