@@ -330,11 +330,23 @@ function resolveBall(s: GameState): GameState {
 
   const ev = s.activeEvent;
   let isOut = batterMove === bowlerMove;
+  let lifelineUsed = false;
 
   // Free hit: never out, runs forced to 0 if matched
   if (ev?.kind === "free-hit") isOut = false;
   // Powerplay: a '1' from bowler doesn't take wicket
   if (ev?.kind === "powerplay" && bowlerMove === 1 && isOut) isOut = false;
+
+  // Lifeline ability — batsman avoids the OUT once per match (score will be halved later)
+  const batterAbilityCheck = batterIsPlayer ? s.playerAbility : s.cpuAbility;
+  if (
+    isOut &&
+    batter?.ability === "lifeline" &&
+    batterAbilityCheck.lifelineAvailable
+  ) {
+    isOut = false;
+    lifelineUsed = true;
+  }
 
   // Compute runs/multiplier
   let runs = isOut ? 0 : batterMove;
