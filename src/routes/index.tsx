@@ -742,25 +742,25 @@ function TossScreen({
 }) {
   const [overs, setOvers] = useState<number>(3);
   return (
-    <div className="mx-auto flex min-h-[80vh] max-w-md flex-col items-center justify-center px-4 animate-fade-in">
-      <div className="mb-2 text-xs font-bold tracking-[0.3em] text-muted-foreground">
+    <div className="mx-auto max-w-2xl px-4 pt-6 pb-10 animate-fade-in">
+      <div className="mb-1 text-center text-xs font-bold tracking-[0.3em] text-muted-foreground">
         YOU WON THE TOSS
       </div>
-      <h2 className="mb-6 text-center text-3xl font-black tracking-tight">Bat or Bowl?</h2>
+      <h2 className="mb-5 text-center text-3xl font-black tracking-tight">Bat or Bowl?</h2>
 
-      <div className="mb-6 w-full">
+      <div className="mb-5">
         <div className="mb-2 text-center text-xs font-bold tracking-widest text-muted-foreground">
           OVERS PER INNINGS
         </div>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="mx-auto grid max-w-sm grid-cols-4 gap-2">
           {[2, 3, 4, 5].map((n) => (
             <button
               key={n}
               onClick={() => setOvers(n)}
-              className={`rounded-xl border-2 py-2 text-sm font-black transition-all ${
+              className={`rounded-xl border-2 py-2 text-sm font-black backdrop-blur-md transition-all ${
                 overs === n
-                  ? "border-primary bg-primary/15 text-primary"
-                  : "border-border bg-card hover:border-primary/50"
+                  ? "border-primary bg-primary/20 text-primary"
+                  : "border-white/10 bg-card/40 hover:border-primary/50"
               }`}
             >
               {n}
@@ -772,24 +772,55 @@ function TossScreen({
         </p>
       </div>
 
-      <div className="grid w-full grid-cols-2 gap-4">
+      <div className="mb-6 grid grid-cols-2 gap-3">
         <button
           onClick={() => onChoose("bat", overs)}
-          className="group flex flex-col items-center gap-2 rounded-2xl border-2 border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary hover:shadow-[var(--shadow-glow)]"
+          className="group flex flex-col items-center gap-1 rounded-2xl border-2 border-white/10 bg-card/40 p-5 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-primary hover:shadow-[var(--shadow-glow)]"
         >
-          <span className="text-4xl">🏏</span>
-          <span className="text-lg font-black">Bat First</span>
-          <span className="text-xs text-muted-foreground">Set the target</span>
+          <span className="text-3xl">🏏</span>
+          <span className="text-base font-black">Bat First</span>
+          <span className="text-[10px] text-muted-foreground">Set the target</span>
         </button>
         <button
           onClick={() => onChoose("bowl", overs)}
-          className="group flex flex-col items-center gap-2 rounded-2xl border-2 border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary hover:shadow-[var(--shadow-glow)]"
+          className="group flex flex-col items-center gap-1 rounded-2xl border-2 border-white/10 bg-card/40 p-5 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-primary hover:shadow-[var(--shadow-glow)]"
         >
-          <span className="text-4xl">🎯</span>
-          <span className="text-lg font-black">Bowl First</span>
-          <span className="text-xs text-muted-foreground">Defend the chase</span>
+          <span className="text-3xl">🎯</span>
+          <span className="text-base font-black">Bowl First</span>
+          <span className="text-[10px] text-muted-foreground">Defend the chase</span>
         </button>
       </div>
+
+      {/* Surprise events explanation */}
+      <Card className="border border-white/10 bg-card/40 p-3 backdrop-blur-md">
+        <div className="mb-2 flex items-center gap-2">
+          <Sparkles className="h-3.5 w-3.5 text-accent" />
+          <h3 className="text-[11px] font-black tracking-widest text-accent">
+            SURPRISE EVENTS
+          </h3>
+          <span className="text-[9px] text-muted-foreground">
+            random per ball
+          </span>
+        </div>
+        <ul className="grid gap-1.5 sm:grid-cols-2">
+          {Object.entries(EVENT_META).map(([key, meta]) => (
+            <li
+              key={key}
+              className="flex items-start gap-1.5 rounded-md bg-background/30 px-2 py-1"
+            >
+              <span className="text-sm leading-none">{meta.emoji}</span>
+              <div className="min-w-0">
+                <div className="text-[10px] font-black leading-tight">
+                  {meta.label}
+                </div>
+                <div className="text-[9px] leading-snug text-muted-foreground">
+                  {meta.description}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Card>
     </div>
   );
 }
