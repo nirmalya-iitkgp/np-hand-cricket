@@ -112,6 +112,8 @@
   --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-glow));
   --shadow-glow: 0 10px 40px -10px oklch(0.78 0.18 90 / 0.4);
   --shadow-card: 0 8px 24px -8px oklch(0.1 0.04 260 / 0.6);
+  --glass-border: 1px solid oklch(1 0 0 / 0.08);
+  --glass-bg: oklch(0.23 0.05 260 / 0.4);
 }
 
 .dark {
@@ -145,9 +147,59 @@
   * {
     border-color: var(--color-border);
   }
-  body {
-    background: var(--gradient-pitch);
-    color: var(--color-foreground);
+  html, body {
     min-height: 100vh;
+  }
+  body {
+    color: var(--color-foreground);
+    background-color: oklch(0.13 0.04 260);
+    /* Stadium night: layered radial floodlights + pitch gradient + crowd haze */
+    background-image:
+      radial-gradient(ellipse 50% 35% at 15% 0%, oklch(0.78 0.18 90 / 0.28), transparent 70%),
+      radial-gradient(ellipse 55% 40% at 85% 5%, oklch(0.65 0.2 25 / 0.22), transparent 70%),
+      radial-gradient(ellipse 80% 55% at 50% 110%, oklch(0.7 0.18 150 / 0.25), transparent 70%),
+      radial-gradient(circle at 30% 80%, oklch(0.45 0.15 260 / 0.4), transparent 60%),
+      linear-gradient(180deg, oklch(0.16 0.05 265) 0%, oklch(0.20 0.06 220) 60%, oklch(0.14 0.05 270) 100%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    position: relative;
+  }
+  /* Subtle crowd noise texture overlay */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+      radial-gradient(circle at 20% 30%, oklch(1 0 0 / 0.04) 0, transparent 1px),
+      radial-gradient(circle at 70% 60%, oklch(1 0 0 / 0.03) 0, transparent 1px),
+      radial-gradient(circle at 45% 80%, oklch(1 0 0 / 0.04) 0, transparent 1px);
+    background-size: 3px 3px, 4px 4px, 5px 5px;
+    opacity: 0.6;
+  }
+  /* Floating stadium lights */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      radial-gradient(circle 2px at 10% 8%, oklch(1 0 0 / 0.7), transparent),
+      radial-gradient(circle 2px at 30% 5%, oklch(1 0 0 / 0.6), transparent),
+      radial-gradient(circle 2px at 55% 7%, oklch(1 0 0 / 0.7), transparent),
+      radial-gradient(circle 2px at 78% 4%, oklch(1 0 0 / 0.6), transparent),
+      radial-gradient(circle 2px at 92% 9%, oklch(1 0 0 / 0.7), transparent);
+    filter: blur(0.5px);
+    animation: stadium-flicker 4s ease-in-out infinite;
+  }
+  main, #root > * {
+    position: relative;
+    z-index: 1;
+  }
+  @keyframes stadium-flicker {
+    0%, 100% { opacity: 0.85; }
+    50% { opacity: 1; }
   }
 }

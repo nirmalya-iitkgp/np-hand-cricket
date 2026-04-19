@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
   ROSTER,
@@ -22,6 +22,7 @@ import { buildCommentary, infoLine } from "@/game/commentary";
 import { EVENT_META, eventToActive, maybeTriggerEvent } from "@/game/events";
 import { chooseCpuMove } from "@/game/ai";
 import { playSound } from "@/game/sounds";
+import { fireConfetti, shakeScreen } from "@/game/effects";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -48,6 +49,7 @@ const emptyAbility: AbilityState = {
   concentrationArmed: false,
   yorkerUsedThisOver: false,
   yorkerActive: false,
+  lifelineAvailable: true,
 };
 
 const initialState: GameState = {
@@ -207,6 +209,7 @@ function Index() {
     if (state.revealing) return;
     if (state.ballEvent === "out") {
       playSound("wicket", state.soundOn);
+      shakeScreen();
     }
   }, [state.ballEvent, state.revealing, state.soundOn]);
 
@@ -214,7 +217,29 @@ function Index() {
     if (state.phase === "innings-break" || state.phase === "result") {
       playSound("innings", state.soundOn, 0.4);
     }
-  }, [state.phase, state.soundOn]);
+    if (state.phase === "result") {
+      const youWon = state.result?.startsWith("You");
+      if (youWon) fireConfetti({ count: 140, durationMs: 3000 });
+    }
+  }, [state.phase, state.soundOn, state.result]);
+
+  // Century confetti — fires once when either side crosses 100
+  const playerCenturyRef = useRef(false);
+  const cpuCenturyRef = useRef(false);
+  useEffect(() => {
+    if (state.playerScore >= 100 && !playerCenturyRef.current) {
+      playerCenturyRef.current = true;
+      fireConfetti({ count: 80 });
+    }
+    if (state.cpuScore >= 100 && !cpuCenturyRef.current) {
+      cpuCenturyRef.current = true;
+      fireConfetti({ count: 80 });
+    }
+    if (state.phase === "pickup") {
+      playerCenturyRef.current = false;
+      cpuCenturyRef.current = false;
+    }
+  }, [state.playerScore, state.cpuScore, state.phase]);
 
   // Player Yorker action — player can use once per over while bowling
   const useYorker = () => {
@@ -328,11 +353,23 @@ function resolveBall(s: GameState): GameState {
 
   const ev = s.activeEvent;
   let isOut = batterMove === bowlerMove;
+  let lifelineUsed = false;
 
   // Free hit: never out, runs forced to 0 if matched
   if (ev?.kind === "free-hit") isOut = false;
   // Powerplay: a '1' from bowler doesn't take wicket
   if (ev?.kind === "powerplay" && bowlerMove === 1 && isOut) isOut = false;
+
+  // Lifeline ability — batsman avoids the OUT once per match (score will be halved later)
+  const batterAbilityCheck = batterIsPlayer ? s.playerAbility : s.cpuAbility;
+  if (
+    isOut &&
+    batter?.ability === "lifeline" &&
+    batterAbilityCheck.lifelineAvailable
+  ) {
+    isOut = false;
+    lifelineUsed = true;
+  }
 
   // Compute runs/multiplier
   let runs = isOut ? 0 : batterMove;
@@ -370,6 +407,22 @@ function resolveBall(s: GameState): GameState {
     ) {
       runs = 5;
       bonus = `${bonus} 🧠 +1 concentration!`.trim();
+    }
+
+    // Runs-boost ability — all-rounder bonus run 15% of the time on safe ball
+    if (
+      batter?.ability === "runs-boost" &&
+      runs > 0 &&
+      Math.random() < 0.15
+    ) {
+      runs += 1;
+      bonus = `${bonus} ⚡ +1 boost!`.trim();
+    }
+
+    // Lifeline triggered this ball — halve runs as the cost of saving the wicket
+    if (lifelineUsed) {
+      runs = Math.floor(batterMove / 2);
+      bonus = `🛟 LIFELINE used — runs halved`;
     }
   }
 
@@ -433,6 +486,19 @@ function resolveBall(s: GameState): GameState {
       }
     }
   }
+
+  // Lifeline consumption + commentary
+  if (lifelineUsed) {
+    newBatterAbility.lifelineAvailable = false;
+    next.commentary = [
+      ...next.commentary,
+      infoLine(
+        `🛟 ${batterName} used their LIFELINE — survives the tie, runs halved!`,
+        "event",
+      ),
+    ];
+  }
+
   next[batterAbilityKey] = newBatterAbility;
 
   // Yorker active flag is consumed each ball
@@ -584,7 +650,7 @@ function RosterSection({
       <h3 className="mb-1.5 text-[10px] font-bold tracking-[0.25em] text-muted-foreground">
         {title.toUpperCase()}
       </h3>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-4">
         {list.map((c) => (
           <CharacterCard key={c.id} character={c} onClick={() => onPick(c)} />
         ))}
@@ -676,25 +742,25 @@ function TossScreen({
 }) {
   const [overs, setOvers] = useState<number>(3);
   return (
-    <div className="mx-auto flex min-h-[80vh] max-w-md flex-col items-center justify-center px-4 animate-fade-in">
-      <div className="mb-2 text-xs font-bold tracking-[0.3em] text-muted-foreground">
+    <div className="mx-auto max-w-2xl px-4 pt-6 pb-10 animate-fade-in">
+      <div className="mb-1 text-center text-xs font-bold tracking-[0.3em] text-muted-foreground">
         YOU WON THE TOSS
       </div>
-      <h2 className="mb-6 text-center text-3xl font-black tracking-tight">Bat or Bowl?</h2>
+      <h2 className="mb-5 text-center text-3xl font-black tracking-tight">Bat or Bowl?</h2>
 
-      <div className="mb-6 w-full">
+      <div className="mb-5">
         <div className="mb-2 text-center text-xs font-bold tracking-widest text-muted-foreground">
           OVERS PER INNINGS
         </div>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="mx-auto grid max-w-sm grid-cols-4 gap-2">
           {[2, 3, 4, 5].map((n) => (
             <button
               key={n}
               onClick={() => setOvers(n)}
-              className={`rounded-xl border-2 py-2 text-sm font-black transition-all ${
+              className={`rounded-xl border-2 py-2 text-sm font-black backdrop-blur-md transition-all ${
                 overs === n
-                  ? "border-primary bg-primary/15 text-primary"
-                  : "border-border bg-card hover:border-primary/50"
+                  ? "border-primary bg-primary/20 text-primary"
+                  : "border-white/10 bg-card/40 hover:border-primary/50"
               }`}
             >
               {n}
@@ -706,24 +772,55 @@ function TossScreen({
         </p>
       </div>
 
-      <div className="grid w-full grid-cols-2 gap-4">
+      <div className="mb-6 grid grid-cols-2 gap-3">
         <button
           onClick={() => onChoose("bat", overs)}
-          className="group flex flex-col items-center gap-2 rounded-2xl border-2 border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary hover:shadow-[var(--shadow-glow)]"
+          className="group flex flex-col items-center gap-1 rounded-2xl border-2 border-white/10 bg-card/40 p-5 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-primary hover:shadow-[var(--shadow-glow)]"
         >
-          <span className="text-4xl">🏏</span>
-          <span className="text-lg font-black">Bat First</span>
-          <span className="text-xs text-muted-foreground">Set the target</span>
+          <span className="text-3xl">🏏</span>
+          <span className="text-base font-black">Bat First</span>
+          <span className="text-[10px] text-muted-foreground">Set the target</span>
         </button>
         <button
           onClick={() => onChoose("bowl", overs)}
-          className="group flex flex-col items-center gap-2 rounded-2xl border-2 border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary hover:shadow-[var(--shadow-glow)]"
+          className="group flex flex-col items-center gap-1 rounded-2xl border-2 border-white/10 bg-card/40 p-5 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-primary hover:shadow-[var(--shadow-glow)]"
         >
-          <span className="text-4xl">🎯</span>
-          <span className="text-lg font-black">Bowl First</span>
-          <span className="text-xs text-muted-foreground">Defend the chase</span>
+          <span className="text-3xl">🎯</span>
+          <span className="text-base font-black">Bowl First</span>
+          <span className="text-[10px] text-muted-foreground">Defend the chase</span>
         </button>
       </div>
+
+      {/* Surprise events explanation */}
+      <Card className="border border-white/10 bg-card/40 p-3 backdrop-blur-md">
+        <div className="mb-2 flex items-center gap-2">
+          <Sparkles className="h-3.5 w-3.5 text-accent" />
+          <h3 className="text-[11px] font-black tracking-widest text-accent">
+            SURPRISE EVENTS
+          </h3>
+          <span className="text-[9px] text-muted-foreground">
+            random per ball
+          </span>
+        </div>
+        <ul className="grid gap-1.5 sm:grid-cols-2">
+          {Object.entries(EVENT_META).map(([key, meta]) => (
+            <li
+              key={key}
+              className="flex items-start gap-1.5 rounded-md bg-background/30 px-2 py-1"
+            >
+              <span className="text-sm leading-none">{meta.emoji}</span>
+              <div className="min-w-0">
+                <div className="text-[10px] font-black leading-tight">
+                  {meta.label}
+                </div>
+                <div className="text-[9px] leading-snug text-muted-foreground">
+                  {meta.description}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Card>
     </div>
   );
 }
