@@ -384,6 +384,8 @@ function resolveBall(s: GameState): GameState {
     ) {
       runs = 5;
       bonus = `${bonus} 🧠 +1 concentration!`.trim();
+    }
+
     // Runs-boost ability — all-rounder bonus run 15% of the time on safe ball
     if (
       batter?.ability === "runs-boost" &&
