@@ -971,14 +971,24 @@ function RevealPanel({
   revealing: boolean;
 }) {
   return (
-    <Card className="flex flex-col items-center gap-1 border-2 bg-card/60 p-2">
+    <Card className="relative flex flex-col items-center gap-1 overflow-hidden border-2 bg-card/60 p-2">
       <div className="text-[9px] font-bold tracking-widest text-muted-foreground">{label}</div>
-      <HandIcon
-        value={revealing ? null : move}
-        hidden={revealing}
-        shaking={revealing}
-        className="h-12 w-12"
-      />
+      {revealing ? (
+        <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-muted/40">
+          <span className="absolute inset-0 rounded-2xl border-2 border-primary/40 border-t-primary animate-spin-slow" />
+          <span className="text-base font-black tracking-widest text-primary">···</span>
+          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-black tracking-widest text-primary">
+            LOCKED
+          </span>
+        </div>
+      ) : (
+        <HandIcon
+          value={move}
+          hidden={false}
+          shaking={false}
+          className="h-12 w-12"
+        />
+      )}
     </Card>
   );
 }
