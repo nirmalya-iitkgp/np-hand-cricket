@@ -43,10 +43,6 @@
   --animate-pop: pop 0.3s ease-out;
   --animate-fade-in: fade-in 0.4s ease-out;
   --animate-slide-up: slide-up 0.5s ease-out;
-  --animate-crowd-pulse: crowd-pulse 0.55s ease-in-out;
-  --animate-vignette-pulse: vignette-pulse 1.6s ease-in-out infinite;
-  --animate-ripple: ripple 0.5s ease-out;
-  --animate-spin-slow: spin 1.2s linear infinite;
 
   @keyframes shake {
     0%, 100% { transform: translateX(0) rotate(0deg); }
@@ -69,19 +65,6 @@
   @keyframes slide-up {
     from { opacity: 0; transform: translateY(24px); }
     to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes crowd-pulse {
-    0%, 100% { transform: translateY(0) scaleY(1); }
-    35% { transform: translateY(-10px) scaleY(1.04); }
-    70% { transform: translateY(-3px) scaleY(1.01); }
-  }
-  @keyframes vignette-pulse {
-    0%, 100% { opacity: 0.55; }
-    50% { opacity: 1; }
-  }
-  @keyframes ripple {
-    0% { transform: scale(0); opacity: 0.5; }
-    100% { transform: scale(2.4); opacity: 0; }
   }
 }
 
@@ -169,44 +152,17 @@
   }
   body {
     color: var(--color-foreground);
-    background-color: #0b1220;
-    position: relative;
-  }
-  /* Stadium photo background — fixed, blurred for text contrast.
-     Attached to <html> so body's ::before/::after remain free for crowd silhouette. */
-  html::before {
-    content: "";
-    position: fixed;
-    inset: -40px; /* expand to hide blur edges */
-    z-index: -2;
-    background-image: url("./assets/stadium-day.jpg");
-    background-size: cover;
-    background-position: center;
+    background-color: oklch(0.13 0.04 260);
+    /* Stadium night: layered radial floodlights + pitch gradient + crowd haze */
+    background-image:
+      radial-gradient(ellipse 50% 35% at 15% 0%, oklch(0.78 0.18 90 / 0.28), transparent 70%),
+      radial-gradient(ellipse 55% 40% at 85% 5%, oklch(0.65 0.2 25 / 0.22), transparent 70%),
+      radial-gradient(ellipse 80% 55% at 50% 110%, oklch(0.7 0.18 150 / 0.25), transparent 70%),
+      radial-gradient(circle at 30% 80%, oklch(0.45 0.15 260 / 0.4), transparent 60%),
+      linear-gradient(180deg, oklch(0.16 0.05 265) 0%, oklch(0.20 0.06 220) 60%, oklch(0.14 0.05 270) 100%);
+    background-attachment: fixed;
     background-repeat: no-repeat;
-    filter: blur(14px) saturate(1.05) brightness(0.7);
-    transform: scale(1.08);
-    transition: opacity 800ms ease;
-  }
-  /* Dark gradient overlay for guaranteed text contrast */
-  html::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background:
-      radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.1 0.04 260 / 0.35), transparent 70%),
-      radial-gradient(ellipse 90% 60% at 50% 100%, oklch(0.08 0.04 260 / 0.75), transparent 70%),
-      linear-gradient(180deg, oklch(0.12 0.04 260 / 0.55) 0%, oklch(0.1 0.04 260 / 0.65) 100%);
-    transition: background 600ms ease;
-  }
-  /* Innings 2 reuses the same day stadium background for visual consistency. */
-  /* Pickup / versus / toss / result: keep a richer stadium look */
-  body[data-phase="pickup"],
-  body[data-phase="versus"],
-  body[data-phase="toss"],
-  body[data-phase="result"] {
-    /* keep stadium image; the ::after overlay already provides contrast */
+    position: relative;
   }
   /* Subtle crowd noise texture overlay */
   body::before {
@@ -222,60 +178,21 @@
     background-size: 3px 3px, 4px 4px, 5px 5px;
     opacity: 0.6;
   }
-  /* Crowd silhouette + floodlight stars overlay */
+  /* Floating stadium lights */
   body::after {
     content: "";
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    /* Stars (top) + crowd silhouette (bottom) */
     background:
-      radial-gradient(circle 1.5px at 10% 8%, oklch(1 0 0 / 0.7), transparent),
-      radial-gradient(circle 1.5px at 30% 5%, oklch(1 0 0 / 0.6), transparent),
-      radial-gradient(circle 1.5px at 55% 7%, oklch(1 0 0 / 0.7), transparent),
-      radial-gradient(circle 1.5px at 78% 4%, oklch(1 0 0 / 0.6), transparent),
-      radial-gradient(circle 1.5px at 92% 9%, oklch(1 0 0 / 0.7), transparent),
-      /* crowd silhouette built from repeating radial humps */
-      radial-gradient(ellipse 28px 30px at 4% 88%, #000 60%, transparent 62%),
-      radial-gradient(ellipse 26px 36px at 12% 90%, #000 60%, transparent 62%),
-      radial-gradient(ellipse 30px 32px at 20% 88%, #000 60%, transparent 62%),
-      radial-gradient(ellipse 26px 38px at 28% 91%, #000 60%, transparent 62%),
-      radial-gradient(ellipse 32px 30px at 36% 88%, #000 60%, transparent 62%),
-      radial-gradient(ellipse 26px 36px at 44% 90%, #000 60%, transparent 62%),
-      radial-gradient(ellipse 30px 34px at 52% 89%, #000 60%, transparent 62%),
-      radial-gradient(ellipse 26px 38px at 60% 91%, #000 60%, transparent 62%),
-      radial-gradient(ellipse 30px 32px at 68% 88%, #000 60%, transparent 62%),
-      radial-gradient(ellipse 28px 36px at 76% 90%, #000 60%, transparent 62%),
-      radial-gradient(ellipse 32px 32px at 84% 89%, #000 60%, transparent 62%),
-      radial-gradient(ellipse 26px 38px at 92% 91%, #000 60%, transparent 62%),
-      radial-gradient(ellipse 30px 34px at 100% 88%, #000 60%, transparent 62%),
-      linear-gradient(180deg, transparent 78%, rgba(0,0,0,0.55) 92%, rgba(0,0,0,0.85) 100%);
-    background-repeat: no-repeat;
-    transform-origin: 50% 100%;
-    transition: transform 250ms ease-out;
-    will-change: transform;
-  }
-  /* Crowd jump on key moments — toggled via body class */
-  body.crowd-jump::after {
-    animation: crowd-pulse 0.55s ease-in-out;
-  }
-  /* State vignettes — overlay element with id "lov-vignette" */
-  #lov-vignette {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 30;
-    box-shadow: inset 0 0 0 transparent;
-    transition: box-shadow 400ms ease;
-  }
-  #lov-vignette[data-vignette="energy"] {
-    box-shadow: inset 0 0 100px goldenrod;
-    animation: vignette-pulse 1.6s ease-in-out infinite;
-  }
-  #lov-vignette[data-vignette="danger"] {
-    box-shadow: inset 0 0 100px #ff2a2a;
-    animation: vignette-pulse 1s ease-in-out infinite;
+      radial-gradient(circle 2px at 10% 8%, oklch(1 0 0 / 0.7), transparent),
+      radial-gradient(circle 2px at 30% 5%, oklch(1 0 0 / 0.6), transparent),
+      radial-gradient(circle 2px at 55% 7%, oklch(1 0 0 / 0.7), transparent),
+      radial-gradient(circle 2px at 78% 4%, oklch(1 0 0 / 0.6), transparent),
+      radial-gradient(circle 2px at 92% 9%, oklch(1 0 0 / 0.7), transparent);
+    filter: blur(0.5px);
+    animation: stadium-flicker 4s ease-in-out infinite;
   }
   main, #root > * {
     position: relative;
