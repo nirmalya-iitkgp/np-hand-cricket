@@ -9,6 +9,52 @@ import { cn } from "@/lib/utils";
 import { Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 
+/** Cricket-themed inline SVG icons for each role. White stroke/fill, sized to fit avatar. */
+function CricketRoleIcon({ role, className }: { role: string; className?: string }) {
+  const isBat = role === "Batsman" || role === "Batswoman";
+  const isBowl = role === "Bowler" || role === "Bowlerwoman";
+  // All-rounder = bat + ball combo
+  if (isBat) {
+    return (
+      <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        {/* Cricket bat angled with handle + blade */}
+        <rect x="14.5" y="2.5" width="2.4" height="6" rx="0.6" transform="rotate(35 15.7 5.5)" fill="currentColor" />
+        <rect x="6" y="9" width="6" height="13" rx="1.5" transform="rotate(35 9 15.5)" fill="currentColor" opacity="0.92" />
+        {/* Ball */}
+        <circle cx="19" cy="19" r="2.2" fill="currentColor" />
+      </svg>
+    );
+  }
+  if (isBowl) {
+    return (
+      <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        {/* Cricket ball with seam + speed lines */}
+        <circle cx="12" cy="12" r="6" fill="currentColor" />
+        <path d="M6 12 Q 12 8 18 12" stroke="white" strokeWidth="1.2" fill="none" opacity="0.85" />
+        <path d="M6 12 Q 12 16 18 12" stroke="white" strokeWidth="1.2" fill="none" opacity="0.85" />
+        {/* Speed trails */}
+        <path d="M2 8 L5 8" />
+        <path d="M2 12 L4 12" />
+        <path d="M2 16 L5 16" />
+      </svg>
+    );
+  }
+  // All-Rounder: stumps + ball
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {/* Three stumps */}
+      <rect x="6" y="6" width="2" height="14" rx="0.6" fill="currentColor" />
+      <rect x="11" y="6" width="2" height="14" rx="0.6" fill="currentColor" />
+      <rect x="16" y="6" width="2" height="14" rx="0.6" fill="currentColor" />
+      {/* Bails */}
+      <rect x="5.5" y="5" width="7.5" height="1.4" rx="0.4" fill="currentColor" />
+      <rect x="11" y="5" width="7.5" height="1.4" rx="0.4" fill="currentColor" />
+      {/* Ball mid-air */}
+      <circle cx="20" cy="11" r="1.8" fill="currentColor" />
+    </svg>
+  );
+}
+
 type Props = {
   character: Character;
   selected?: boolean;
@@ -80,7 +126,7 @@ export function CharacterCard({ character, selected, onClick, index = 0 }: CardP
         >
           <Card
             className={cn(
-              "relative overflow-hidden border p-3 transition-all",
+              "relative overflow-hidden border p-2 transition-all",
               "bg-card/55 backdrop-blur-md",
               ROLE_PATTERN[character.role],
               ROLE_AURA[character.role],
@@ -89,36 +135,35 @@ export function CharacterCard({ character, selected, onClick, index = 0 }: CardP
                 : "border-white/10 hover:border-white/30",
             )}
           >
-            <div className="flex items-center gap-3">
+            {/* Compact vertical layout: avatar on top, name + meta below */}
+            <div className="flex flex-col items-center gap-1.5 text-center">
               <div
                 className={cn(
-                  "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br text-2xl text-white shadow-[0_6px_18px_-6px_oklch(0.1_0_0_/_0.7)] ring-1 ring-white/10",
+                  "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-[0_6px_18px_-6px_oklch(0.1_0_0_/_0.7)] ring-1 ring-white/10",
                   ROLE_AVATAR_GRADIENT[character.role],
                 )}
               >
-                {character.emoji}
+                <CricketRoleIcon role={character.role} className="h-6 w-6" />
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2">
-                  <span
-                    className={cn(
-                      "rounded-full px-1.5 py-0.5 text-[9px] font-black tracking-wider",
-                      ROLE_BADGE[character.role] ?? "bg-secondary text-foreground",
-                    )}
-                  >
-                    {ROLE_SHORT[character.role]}
-                  </span>
-                  <span className="rounded-md bg-background/40 px-1.5 py-0.5 text-[9px] font-black tracking-widest text-foreground/80 ring-1 ring-white/10">
-                    {character.country}
-                  </span>
-                </div>
-                <div className="mt-1 truncate text-sm font-black leading-tight tracking-tight">
-                  {character.name}
-                </div>
-                <div className="mt-0.5 flex items-center gap-1 text-[10px] text-accent">
-                  <Sparkles className="h-3 w-3 shrink-0" />
-                  <span className="truncate font-semibold">{character.abilityLabel}</span>
-                </div>
+              <div className="flex w-full items-center justify-center gap-1">
+                <span
+                  className={cn(
+                    "rounded-full px-1.5 py-[1px] text-[8px] font-black tracking-wider",
+                    ROLE_BADGE[character.role] ?? "bg-secondary text-foreground",
+                  )}
+                >
+                  {ROLE_SHORT[character.role]}
+                </span>
+                <span className="rounded-md bg-background/40 px-1.5 py-[1px] text-[8px] font-black tracking-widest text-foreground/80 ring-1 ring-white/10">
+                  {character.country}
+                </span>
+              </div>
+              <div className="w-full truncate text-[11px] font-black leading-tight tracking-tight">
+                {character.name}
+              </div>
+              <div className="flex w-full items-center justify-center gap-1 text-[9px] text-accent">
+                <Sparkles className="h-2.5 w-2.5 shrink-0" />
+                <span className="truncate font-semibold">{character.abilityLabel}</span>
               </div>
             </div>
           </Card>
@@ -130,8 +175,13 @@ export function CharacterCard({ character, selected, onClick, index = 0 }: CardP
         className="w-64 border border-primary/40 bg-card/95 backdrop-blur-xl"
       >
         <div className="flex items-start gap-2">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-glow text-lg">
-            {character.emoji}
+          <div
+            className={cn(
+              "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br text-white",
+              ROLE_AVATAR_GRADIENT[character.role],
+            )}
+          >
+            <CricketRoleIcon role={character.role} className="h-5 w-5" />
           </div>
           <div className="min-w-0">
             <div className="text-sm font-black tracking-tight">
