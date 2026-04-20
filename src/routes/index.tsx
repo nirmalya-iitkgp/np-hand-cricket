@@ -15,6 +15,7 @@ import { Commentary } from "@/components/game/Commentary";
 import { Timeline } from "@/components/game/Timeline";
 import { EventOfferDialog } from "@/components/game/EventBanner";
 import { SuspenseOverlay } from "@/components/game/SuspenseOverlay";
+import { StadiumEnvironment } from "@/components/game/StadiumEnvironment";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Trophy, Swords, RotateCcw, BookOpen, Sparkles, Zap, Brain } from "lucide-react";
@@ -304,6 +305,7 @@ function Index() {
 
   return (
     <main className="min-h-screen pb-6">
+      <StadiumEnvironment state={state} />
       {state.phase === "pickup" && <PickupScreen onPick={onPick} />}
       {state.phase === "versus" && state.player && state.cpu && (
         <VersusScreen player={state.player} cpu={state.cpu} onContinue={goToToss} />
