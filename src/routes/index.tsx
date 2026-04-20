@@ -15,6 +15,7 @@ import { Commentary } from "@/components/game/Commentary";
 import { Timeline } from "@/components/game/Timeline";
 import { EventOfferDialog } from "@/components/game/EventBanner";
 import { SuspenseOverlay } from "@/components/game/SuspenseOverlay";
+import { StadiumEnvironment } from "@/components/game/StadiumEnvironment";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Trophy, Swords, RotateCcw, BookOpen, Sparkles, Zap, Brain } from "lucide-react";
@@ -304,6 +305,7 @@ function Index() {
 
   return (
     <main className="min-h-screen pb-6">
+      <StadiumEnvironment state={state} />
       {state.phase === "pickup" && <PickupScreen onPick={onPick} />}
       {state.phase === "versus" && state.player && state.cpu && (
         <VersusScreen player={state.player} cpu={state.cpu} onContinue={goToToss} />
@@ -650,9 +652,14 @@ function RosterSection({
       <h3 className="mb-1.5 text-[10px] font-bold tracking-[0.25em] text-muted-foreground">
         {title.toUpperCase()}
       </h3>
-      <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-4">
-        {list.map((c) => (
-          <CharacterCard key={c.id} character={c} onClick={() => onPick(c)} />
+      <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 lg:grid-cols-3">
+        {list.map((c, i) => (
+          <CharacterCard
+            key={c.id}
+            character={c}
+            index={i}
+            onClick={() => onPick(c)}
+          />
         ))}
       </div>
     </div>
@@ -918,17 +925,22 @@ function PlayingScreen({
             </div>
           )}
 
-          {/* Action pad — labels change for bat/bowl */}
-          <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
-            {[1, 2, 3, 4, 5, 6].map((n) => (
-              <NumberButton
-                key={n}
-                value={n}
-                mode={mode}
-                onClick={() => onPlay(n)}
-                disabled={state.revealing || !!state.pendingOffer || !allowed(n)}
-              />
-            ))}
+          {/* Action pad — anchored to lower third on mobile (thumb zone) */}
+          <div className="mt-2 sm:mt-3">
+            <div className="mb-1 text-center text-[9px] font-black tracking-[0.3em] text-muted-foreground">
+              {batterIsPlayer ? "PICK YOUR SHOT" : "PICK YOUR DELIVERY"}
+            </div>
+            <div className="grid grid-cols-6 gap-1.5 rounded-2xl border border-white/10 bg-card/40 p-2 backdrop-blur-md sm:gap-2">
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <NumberButton
+                  key={n}
+                  value={n}
+                  mode={mode}
+                  onClick={() => onPlay(n)}
+                  disabled={state.revealing || !!state.pendingOffer || !allowed(n)}
+                />
+              ))}
+            </div>
           </div>
         </>
       )}
@@ -964,14 +976,24 @@ function RevealPanel({
   revealing: boolean;
 }) {
   return (
-    <Card className="flex flex-col items-center gap-1 border-2 bg-card/60 p-2">
+    <Card className="relative flex flex-col items-center gap-1 overflow-hidden border-2 bg-card/60 p-2">
       <div className="text-[9px] font-bold tracking-widest text-muted-foreground">{label}</div>
-      <HandIcon
-        value={revealing ? null : move}
-        hidden={revealing}
-        shaking={revealing}
-        className="h-12 w-12"
-      />
+      {revealing ? (
+        <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-muted/40">
+          <span className="absolute inset-0 rounded-2xl border-2 border-primary/40 border-t-primary animate-spin-slow" />
+          <span className="text-base font-black tracking-widest text-primary">···</span>
+          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[8px] font-black tracking-widest text-primary">
+            LOCKED
+          </span>
+        </div>
+      ) : (
+        <HandIcon
+          value={move}
+          hidden={false}
+          shaking={false}
+          className="h-12 w-12"
+        />
+      )}
     </Card>
   );
 }

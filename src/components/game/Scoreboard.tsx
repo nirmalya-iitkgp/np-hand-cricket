@@ -2,6 +2,7 @@ import type { GameState } from "@/game/types";
 import { Heart, HeartCrack, Target, Volume2, VolumeX } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ActiveEventBadge } from "./EventBanner";
+import { motion, AnimatePresence } from "framer-motion";
 
 type Props = {
   state: GameState;
@@ -123,7 +124,18 @@ function TeamPanel({
       </div>
       <div className="flex flex-col items-end">
         <div className="text-lg font-black leading-none tracking-tight">
-          {score}
+          <AnimatePresence mode="popLayout">
+            <motion.span
+              key={score}
+              initial={{ y: -8, opacity: 0, scale: 1.2 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 8, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 500, damping: 28 }}
+              className="inline-block"
+            >
+              {score}
+            </motion.span>
+          </AnimatePresence>
           <span className="text-xs font-bold text-muted-foreground">/{wickets}</span>
         </div>
         <Wickets lost={wickets} />
