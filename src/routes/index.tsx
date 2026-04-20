@@ -925,17 +925,22 @@ function PlayingScreen({
             </div>
           )}
 
-          {/* Action pad — labels change for bat/bowl */}
-          <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
-            {[1, 2, 3, 4, 5, 6].map((n) => (
-              <NumberButton
-                key={n}
-                value={n}
-                mode={mode}
-                onClick={() => onPlay(n)}
-                disabled={state.revealing || !!state.pendingOffer || !allowed(n)}
-              />
-            ))}
+          {/* Action pad — anchored to lower third on mobile (thumb zone) */}
+          <div className="mt-2 sm:mt-3">
+            <div className="mb-1 text-center text-[9px] font-black tracking-[0.3em] text-muted-foreground">
+              {batterIsPlayer ? "PICK YOUR SHOT" : "PICK YOUR DELIVERY"}
+            </div>
+            <div className="grid grid-cols-6 gap-1.5 rounded-2xl border border-white/10 bg-card/40 p-2 backdrop-blur-md sm:gap-2">
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <NumberButton
+                  key={n}
+                  value={n}
+                  mode={mode}
+                  onClick={() => onPlay(n)}
+                  disabled={state.revealing || !!state.pendingOffer || !allowed(n)}
+                />
+              ))}
+            </div>
           </div>
         </>
       )}
