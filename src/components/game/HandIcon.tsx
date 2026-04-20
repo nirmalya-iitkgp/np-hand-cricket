@@ -1,4 +1,6 @@
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { useState } from "react";
 
 export type ActionMode = "bat" | "bowl";
 
@@ -95,23 +97,41 @@ export function NumberButton({
   disabled?: boolean;
 }) {
   const meta = mode === "bat" ? BAT_LABELS[value] : BOWL_LABELS[value];
+  const [ripples, setRipples] = useState<{ id: number }[]>([]);
+  const fireRipple = () => {
+    const id = Date.now() + Math.random();
+    setRipples((r) => [...r, { id }]);
+    setTimeout(() => setRipples((r) => r.filter((x) => x.id !== id)), 500);
+  };
   return (
-    <button
+    <motion.button
       type="button"
-      onClick={onClick}
+      onClick={() => {
+        if (disabled) return;
+        fireRipple();
+        onClick();
+      }}
       disabled={disabled}
+      whileTap={{ scale: 0.95 }}
+      whileHover={{ y: -2 }}
+      transition={{ type: "spring", stiffness: 500, damping: 25 }}
       className={cn(
-        "group relative flex aspect-square flex-col items-center justify-center gap-0.5 rounded-xl border-2 border-border bg-card font-bold transition-all",
-        "hover:border-primary hover:bg-primary/10 hover:shadow-[var(--shadow-glow)] hover:-translate-y-0.5",
-        "active:scale-95 active:translate-y-0",
-        "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:transform-none disabled:hover:border-border disabled:hover:bg-card disabled:hover:shadow-none",
+        "group relative flex aspect-square flex-col items-center justify-center gap-0.5 overflow-hidden rounded-xl border-2 border-border bg-card font-bold",
+        "hover:border-primary hover:bg-primary/10 hover:shadow-[var(--shadow-glow)]",
+        "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-border disabled:hover:bg-card disabled:hover:shadow-none",
       )}
     >
-      <span className="text-base leading-none">{meta.emoji}</span>
-      <span className="text-[9px] uppercase leading-none tracking-wide text-muted-foreground">
+      {ripples.map((r) => (
+        <span
+          key={r.id}
+          className="pointer-events-none absolute left-1/2 top-1/2 h-12 w-12 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/40 animate-ripple"
+        />
+      ))}
+      <span className="relative text-base leading-none">{meta.emoji}</span>
+      <span className="relative text-[9px] uppercase leading-none tracking-wide text-muted-foreground">
         {meta.label}
       </span>
-      <span className="text-[10px] font-black leading-none text-primary">{value}</span>
-    </button>
+      <span className="relative text-[10px] font-black leading-none text-primary">{value}</span>
+    </motion.button>
   );
 }
