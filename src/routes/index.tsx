@@ -652,7 +652,7 @@ function RosterSection({
       <h3 className="mb-1.5 text-[10px] font-bold tracking-[0.25em] text-muted-foreground">
         {title.toUpperCase()}
       </h3>
-      <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {list.map((c, i) => (
           <CharacterCard
             key={c.id}

@@ -200,16 +200,7 @@
       linear-gradient(180deg, oklch(0.12 0.04 260 / 0.55) 0%, oklch(0.1 0.04 260 / 0.65) 100%);
     transition: background 600ms ease;
   }
-  /* Innings 2 = Floodlit night image */
-  html:has(body[data-inning="2"])::before {
-    background-image: url("./assets/stadium-night.jpg");
-  }
-  html:has(body[data-inning="2"])::after {
-    background:
-      radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.08 0.05 290 / 0.5), transparent 70%),
-      radial-gradient(ellipse 90% 60% at 50% 100%, oklch(0.05 0.05 290 / 0.85), transparent 70%),
-      linear-gradient(180deg, oklch(0.1 0.05 290 / 0.65) 0%, oklch(0.06 0.05 290 / 0.75) 100%);
-  }
+  /* Innings 2 reuses the same day stadium background for visual consistency. */
   /* Pickup / versus / toss / result: keep a richer stadium look */
   body[data-phase="pickup"],
   body[data-phase="versus"],
