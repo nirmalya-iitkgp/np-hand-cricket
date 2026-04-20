@@ -170,26 +170,52 @@
   body {
     color: var(--color-foreground);
     background-color: #0b1220;
-    /* Default = "Day Blue" sky (innings 1) */
-    background-image: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
-    background-attachment: fixed;
-    background-repeat: no-repeat;
-    transition: background-image 800ms ease;
     position: relative;
   }
-  /* Innings 2 = Floodlit night */
-  body[data-inning="2"] {
-    background-image: linear-gradient(180deg, #2D1457 0%, #100220 100%);
+  /* Stadium photo background — fixed, blurred for text contrast.
+     Attached to <html> so body's ::before/::after remain free for crowd silhouette. */
+  html::before {
+    content: "";
+    position: fixed;
+    inset: -40px; /* expand to hide blur edges */
+    z-index: -2;
+    background-image: url("./assets/stadium-day.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(14px) saturate(1.05) brightness(0.7);
+    transform: scale(1.08);
+    transition: opacity 800ms ease;
+  }
+  /* Dark gradient overlay for guaranteed text contrast */
+  html::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.1 0.04 260 / 0.35), transparent 70%),
+      radial-gradient(ellipse 90% 60% at 50% 100%, oklch(0.08 0.04 260 / 0.75), transparent 70%),
+      linear-gradient(180deg, oklch(0.12 0.04 260 / 0.55) 0%, oklch(0.1 0.04 260 / 0.65) 100%);
+    transition: background 600ms ease;
+  }
+  /* Innings 2 = Floodlit night image */
+  html:has(body[data-inning="2"])::before {
+    background-image: url("./assets/stadium-night.jpg");
+  }
+  html:has(body[data-inning="2"])::after {
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.08 0.05 290 / 0.5), transparent 70%),
+      radial-gradient(ellipse 90% 60% at 50% 100%, oklch(0.05 0.05 290 / 0.85), transparent 70%),
+      linear-gradient(180deg, oklch(0.1 0.05 290 / 0.65) 0%, oklch(0.06 0.05 290 / 0.75) 100%);
   }
   /* Pickup / versus / toss / result: keep a richer stadium look */
   body[data-phase="pickup"],
   body[data-phase="versus"],
   body[data-phase="toss"],
   body[data-phase="result"] {
-    background-image:
-      radial-gradient(ellipse 50% 35% at 15% 0%, oklch(0.78 0.18 90 / 0.35), transparent 70%),
-      radial-gradient(ellipse 55% 40% at 85% 5%, oklch(0.65 0.2 25 / 0.28), transparent 70%),
-      linear-gradient(180deg, #1b2440 0%, #0a0f25 100%);
+    /* keep stadium image; the ::after overlay already provides contrast */
   }
   /* Subtle crowd noise texture overlay */
   body::before {
