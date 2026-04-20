@@ -179,7 +179,7 @@
     position: fixed;
     inset: -40px; /* expand to hide blur edges */
     z-index: -2;
-    background-image: url("/src/assets/stadium-day.jpg");
+    background-image: url("./assets/stadium-day.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -202,7 +202,7 @@
   }
   /* Innings 2 = Floodlit night image */
   html:has(body[data-inning="2"])::before {
-    background-image: url("/src/assets/stadium-night.jpg");
+    background-image: url("./assets/stadium-night.jpg");
   }
   html:has(body[data-inning="2"])::after {
     background:
