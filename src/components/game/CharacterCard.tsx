@@ -6,7 +6,15 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { cn } from "@/lib/utils";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Shield, Zap as ZapIcon, Target as TargetIcon, Brain } from "lucide-react";
+
+const ROLE_ICON: Record<string, React.ElementType> = {
+  Batsman: Brain,
+  Batswoman: Brain,
+  Bowler: TargetIcon,
+  Bowlerwoman: TargetIcon,
+  "All-Rounder": ZapIcon,
+};
 
 type Props = {
   character: Character;
@@ -62,13 +70,13 @@ export function CharacterCard({ character, selected, onClick }: Props) {
                 {character.emoji}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="truncate text-[11px] font-bold leading-tight tracking-tight">
+                <div className="truncate font-display text-[13px] font-normal leading-tight tracking-wide">
                   {character.name}
                 </div>
                 <div className="mt-0.5 flex items-center gap-1">
                   <span
                     className={cn(
-                      "rounded-full px-1 py-0 text-[8px] font-black tracking-wider",
+                      "inline-flex items-center gap-0.5 rounded-full px-1 py-0 text-[8px] font-black tracking-wider",
                       ROLE_BADGE[character.role] ?? "bg-secondary text-foreground",
                     )}
                   >
@@ -77,7 +85,10 @@ export function CharacterCard({ character, selected, onClick }: Props) {
                   <span className="truncate text-[8px] font-semibold text-muted-foreground">
                     {character.country}
                   </span>
-                  <Sparkles className="h-2 w-2 shrink-0 text-accent" />
+                  {(() => {
+                    const Icon = ROLE_ICON[character.role] ?? Sparkles;
+                    return <Icon className="h-2.5 w-2.5 shrink-0 text-accent" strokeWidth={2.5} />;
+                  })()}
                 </div>
               </div>
             </div>
@@ -94,7 +105,7 @@ export function CharacterCard({ character, selected, onClick }: Props) {
             {character.emoji}
           </div>
           <div className="min-w-0">
-            <div className="text-sm font-black tracking-tight">
+            <div className="font-display text-base font-normal tracking-wide">
               {character.name}
             </div>
             <div className="text-[10px] text-muted-foreground">
@@ -104,7 +115,7 @@ export function CharacterCard({ character, selected, onClick }: Props) {
         </div>
         <div className="mt-3 rounded-lg border border-accent/40 bg-accent/10 p-2">
           <div className="flex items-center gap-1 text-[10px] font-black tracking-widest text-accent">
-            <Sparkles className="h-3 w-3" />
+            <Shield className="h-3 w-3" strokeWidth={2.5} />
             ABILITY · {character.abilityLabel.toUpperCase()}
           </div>
           <p className="mt-1 text-xs leading-snug text-foreground/90">

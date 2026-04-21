@@ -1,5 +1,6 @@
 import type { BallOutcome } from "@/game/types";
 import { cn } from "@/lib/utils";
+import { History } from "lucide-react";
 
 /** Shows the last 6 balls of the current innings as colored chips. */
 export function Timeline({ outcomes, inning }: { outcomes: BallOutcome[]; inning: 1 | 2 }) {
@@ -11,7 +12,8 @@ export function Timeline({ outcomes, inning }: { outcomes: BallOutcome[]; inning
   return (
     <div className="mx-auto max-w-2xl px-3 pt-1.5">
       <div className="flex items-center gap-2 rounded-lg border border-border bg-card/60 px-2 py-1.5 backdrop-blur">
-        <span className="text-[9px] font-bold tracking-widest text-muted-foreground">
+        <span className="inline-flex items-center gap-1 font-display text-[10px] tracking-widest text-muted-foreground">
+          <History className="h-3 w-3" strokeWidth={2.5} />
           LAST 6
         </span>
         <div className="flex flex-1 items-center justify-end gap-1">
@@ -19,7 +21,7 @@ export function Timeline({ outcomes, inning }: { outcomes: BallOutcome[]; inning
             <div
               key={i}
               className={cn(
-                "flex h-6 w-6 items-center justify-center rounded-full border text-[10px] font-black",
+                "flex h-6 w-6 items-center justify-center rounded-full border text-[10px] font-black tabular-nums",
                 o === null && "border-border/50 bg-secondary/30 text-muted-foreground/50",
                 o?.isWicket && "border-destructive bg-destructive text-destructive-foreground animate-pop",
                 o && !o.isWicket && o.runs === 0 && "border-muted bg-muted text-muted-foreground",

@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { Eye } from "lucide-react";
 
 /** Animated suspense overlay shown during the 1s reveal window. */
 export function SuspenseOverlay({ active }: { active: boolean }) {
@@ -23,8 +24,9 @@ export function SuspenseOverlay({ active }: { active: boolean }) {
             />
           ))}
         </div>
-        <div className="text-2xl font-black tracking-[0.4em] text-primary animate-pulse">
-          REVEAL…
+        <div className="inline-flex items-center gap-2 font-display text-3xl tracking-[0.4em] text-primary animate-pulse">
+          <Eye className="h-6 w-6" strokeWidth={2.5} />
+          REVEAL
         </div>
       </div>
     </div>

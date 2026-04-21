@@ -1,5 +1,14 @@
 import type { GameState } from "@/game/types";
-import { Heart, HeartCrack, Target, Volume2, VolumeX } from "lucide-react";
+import {
+  Heart,
+  HeartCrack,
+  Target,
+  Volume2,
+  VolumeX,
+  Trophy,
+  Timer,
+  CircleDot,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ActiveEventBadge } from "./EventBanner";
 
@@ -34,18 +43,21 @@ export function Scoreboard({ state, onToggleSound }: Props) {
       <div className="mx-auto max-w-2xl px-3 py-1.5">
         <div className="mb-1 flex flex-wrap items-center justify-between gap-1.5 text-[10px] text-muted-foreground">
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className="rounded-full bg-primary/15 px-1.5 py-0.5 font-semibold text-primary">
-              Inn {state.inning}
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-1.5 py-0.5 font-semibold tabular-nums text-primary">
+              <Trophy className="h-2.5 w-2.5" strokeWidth={2.5} />
+              INN {state.inning}
             </span>
-            <span className="rounded-full bg-secondary px-1.5 py-0.5 font-semibold">
-              {oversDisplay}/{state.oversPerInnings}ov
+            <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-1.5 py-0.5 font-semibold tabular-nums">
+              <Timer className="h-2.5 w-2.5" strokeWidth={2.5} />
+              {oversDisplay}/{state.oversPerInnings}
             </span>
-            <span className="rounded-full bg-secondary/60 px-1.5 py-0.5 font-semibold">
-              {ballsLeft}b left
+            <span className="inline-flex items-center gap-1 rounded-full bg-secondary/60 px-1.5 py-0.5 font-semibold tabular-nums">
+              <CircleDot className="h-2.5 w-2.5" strokeWidth={2.5} />
+              {ballsLeft}b
             </span>
             {state.target !== null && (
-              <span className="flex items-center gap-1 rounded-full bg-accent/20 px-1.5 py-0.5 font-semibold text-accent-foreground">
-                <Target className="h-2.5 w-2.5" />
+              <span className="flex items-center gap-1 rounded-full bg-accent/20 px-1.5 py-0.5 font-semibold tabular-nums text-accent-foreground">
+                <Target className="h-2.5 w-2.5" strokeWidth={2.5} />
                 T:{state.target}
               </span>
             )}
@@ -110,7 +122,7 @@ function TeamPanel({
     >
       <div className="min-w-0">
         <div className="flex items-center gap-1">
-          <span className="text-[9px] font-bold tracking-widest text-muted-foreground">
+          <span className="font-display text-[10px] tracking-widest text-muted-foreground">
             {label}
           </span>
           {batting && (
@@ -119,12 +131,12 @@ function TeamPanel({
             </span>
           )}
         </div>
-        <div className="truncate text-[11px] font-semibold leading-tight">{name}</div>
+        <div className="truncate font-display text-[13px] leading-tight tracking-wide">{name}</div>
       </div>
       <div className="flex flex-col items-end">
-        <div className="text-lg font-black leading-none tracking-tight">
+        <div className="font-display text-2xl leading-none tracking-wide tabular-nums">
           {score}
-          <span className="text-xs font-bold text-muted-foreground">/{wickets}</span>
+          <span className="text-xs text-muted-foreground">/{wickets}</span>
         </div>
         <Wickets lost={wickets} />
       </div>

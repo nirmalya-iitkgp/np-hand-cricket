@@ -1,6 +1,6 @@
 import type { CommentaryLine } from "@/game/types";
 import { cn } from "@/lib/utils";
-import { Mic } from "lucide-react";
+import { Radio } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 /** Full match log with auto-scroll to the latest line. */
@@ -16,8 +16,8 @@ export function Commentary({ lines }: { lines: CommentaryLine[] }) {
     <div className="mx-auto max-w-2xl px-3 pt-1.5">
       <div className="rounded-lg border border-border bg-card/60 backdrop-blur">
         <div className="flex items-center gap-1.5 border-b border-border/50 px-2.5 py-1">
-          <Mic className="h-3 w-3 text-primary" />
-          <span className="text-[9px] font-bold tracking-widest text-muted-foreground">
+          <Radio className="h-3 w-3 text-primary animate-pulse" strokeWidth={2.5} />
+          <span className="font-display text-[10px] tracking-widest text-muted-foreground">
             LIVE COMMENTARY
           </span>
         </div>

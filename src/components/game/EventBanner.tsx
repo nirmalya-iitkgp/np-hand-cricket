@@ -2,6 +2,7 @@ import type { ActiveEvent, SurpriseEventKind } from "@/game/types";
 import { EVENT_META } from "@/game/events";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Sparkles } from "lucide-react";
 
 export function ActiveEventBadge({ event }: { event: ActiveEvent }) {
   const meta = EVENT_META[event.kind];
@@ -18,14 +19,14 @@ export function ActiveEventBadge({ event }: { event: ActiveEvent }) {
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-bold tracking-wide animate-pop",
+        "inline-flex items-center gap-2 rounded-full border px-3 py-1 font-display text-xs tracking-widest animate-pop",
         colorClass,
       )}
     >
       <span className="text-base">{meta.emoji}</span>
       <span>{meta.label.toUpperCase()}</span>
       {event.kind === "powerplay" && (
-        <span className="rounded-full bg-background/40 px-1.5 py-0.5 text-[10px]">
+        <span className="rounded-full bg-background/40 px-1.5 py-0.5 text-[10px] tabular-nums">
           {event.ballsLeft} ball{event.ballsLeft === 1 ? "" : "s"} left
         </span>
       )}
@@ -47,10 +48,11 @@ export function EventOfferDialog({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm animate-fade-in">
       <div className="mx-4 w-full max-w-sm rounded-2xl border-2 border-accent bg-card p-6 text-center shadow-[var(--shadow-glow)] animate-pop">
         <div className="mb-3 text-5xl">{meta.emoji}</div>
-        <div className="mb-1 text-xs font-bold tracking-[0.3em] text-accent">
+        <div className="mb-1 inline-flex items-center gap-1 text-xs font-bold tracking-[0.3em] text-accent">
+          <Sparkles className="h-3 w-3" strokeWidth={2.5} />
           SURPRISE EVENT
         </div>
-        <h3 className="mb-2 text-2xl font-black">{meta.label}</h3>
+        <h3 className="mb-2 font-display text-3xl tracking-wide">{meta.label}</h3>
         <p className="mb-5 text-sm text-muted-foreground">{meta.description}</p>
         <div className="grid grid-cols-2 gap-3">
           <Button variant="outline" onClick={onDecline}>
