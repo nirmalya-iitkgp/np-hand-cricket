@@ -1,4 +1,5 @@
 import type { Character } from "@/game/types";
+import type { ElementType } from "react";
 import { Card } from "@/components/ui/card";
 import {
   HoverCard,
@@ -8,7 +9,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Sparkles, Shield, Zap as ZapIcon, Target as TargetIcon, Brain } from "lucide-react";
 
-const ROLE_ICON: Record<string, React.ElementType> = {
+const ROLE_ICON: Record<string, ElementType> = {
   Batsman: Brain,
   Batswoman: Brain,
   Bowler: TargetIcon,
