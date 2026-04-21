@@ -1,6 +1,7 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
+import stadiumBg from "@/assets/stadium-bg.png";
 
 function NotFoundComponent() {
   return (
@@ -69,5 +70,22 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  return <Outlet />;
+  return (
+    <>
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 -z-10 bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${stadiumBg})`,
+          filter: "blur(18px) saturate(1.1) brightness(0.55)",
+          transform: "scale(1.1)",
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 -z-10 bg-background/55"
+      />
+      <Outlet />
+    </>
+  );
 }

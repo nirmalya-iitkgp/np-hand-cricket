@@ -152,14 +152,12 @@
   }
   body {
     color: var(--color-foreground);
-    background-color: oklch(0.13 0.04 260);
-    /* Stadium night: layered radial floodlights + pitch gradient + crowd haze */
+    background-color: transparent;
+    /* Stadium night: subtle floodlight glows layered over the photo backdrop */
     background-image:
-      radial-gradient(ellipse 50% 35% at 15% 0%, oklch(0.78 0.18 90 / 0.28), transparent 70%),
-      radial-gradient(ellipse 55% 40% at 85% 5%, oklch(0.65 0.2 25 / 0.22), transparent 70%),
-      radial-gradient(ellipse 80% 55% at 50% 110%, oklch(0.7 0.18 150 / 0.25), transparent 70%),
-      radial-gradient(circle at 30% 80%, oklch(0.45 0.15 260 / 0.4), transparent 60%),
-      linear-gradient(180deg, oklch(0.16 0.05 265) 0%, oklch(0.20 0.06 220) 60%, oklch(0.14 0.05 270) 100%);
+      radial-gradient(ellipse 50% 35% at 15% 0%, oklch(0.78 0.18 90 / 0.18), transparent 70%),
+      radial-gradient(ellipse 55% 40% at 85% 5%, oklch(0.65 0.2 25 / 0.15), transparent 70%),
+      radial-gradient(ellipse 80% 55% at 50% 110%, oklch(0.7 0.18 150 / 0.15), transparent 70%);
     background-attachment: fixed;
     background-repeat: no-repeat;
     position: relative;
