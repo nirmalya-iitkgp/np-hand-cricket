@@ -19,7 +19,7 @@ export type Character = {
 };
 
 export const ROSTER: Character[] = [
-  // Top batsmen (3)
+  // ===== Batsmen (6) =====
   { id: "kohli", name: "Virat Kohli", role: "Batsman", emoji: "🏏", country: "IND",
     ability: "concentration", abilityLabel: "Concentration",
     abilityDesc: "Every 3 safe balls: next 4 counts as 5 runs." },
@@ -29,16 +29,28 @@ export const ROSTER: Character[] = [
   { id: "babar", name: "Babar Azam", role: "Batsman", emoji: "🏏", country: "PAK",
     ability: "lifeline", abilityLabel: "Lifeline",
     abilityDesc: "Once per match: a tie doesn't go OUT — score halved instead." },
+  { id: "smith", name: "Steve Smith", role: "Batsman", emoji: "🏏", country: "AUS",
+    ability: "concentration", abilityLabel: "Crease Magnet",
+    abilityDesc: "Every 3 safe balls: next 4 counts as 5 runs." },
+  { id: "williamson", name: "Kane Williamson", role: "Batsman", emoji: "🏏", country: "NZ",
+    ability: "lifeline", abilityLabel: "Ice Cool",
+    abilityDesc: "Once per match: a tie doesn't go OUT — score halved instead." },
+  { id: "rohit", name: "Rohit Sharma", role: "Batsman", emoji: "🏏", country: "IND",
+    ability: "concentration", abilityLabel: "Hitman Focus",
+    abilityDesc: "Every 3 safe balls: next 4 counts as 5 runs." },
 
-  // Top batswomen (2)
+  // ===== Batswomen (3) =====
   { id: "mandhana", name: "Smriti Mandhana", role: "Batswoman", emoji: "🏏", country: "IND",
     ability: "concentration", abilityLabel: "Concentration",
     abilityDesc: "Every 3 safe balls: next 4 counts as 5 runs." },
   { id: "perry", name: "Ellyse Perry", role: "Batswoman", emoji: "🏏", country: "AUS",
     ability: "lifeline", abilityLabel: "Match-Saver",
     abilityDesc: "Once per match: a tie doesn't go OUT — score halved instead." },
+  { id: "healy", name: "Alyssa Healy", role: "Batswoman", emoji: "🏏", country: "AUS",
+    ability: "concentration", abilityLabel: "Power Stance",
+    abilityDesc: "Every 3 safe balls: next 4 counts as 5 runs." },
 
-  // Top bowlers (3)
+  // ===== Bowlers (6) =====
   { id: "bumrah", name: "Jasprit Bumrah", role: "Bowler", emoji: "🎯", country: "IND",
     ability: "yorker", abilityLabel: "Yorker",
     abilityDesc: "Once per over: forces opponent to pick 1–3 only." },
@@ -48,16 +60,28 @@ export const ROSTER: Character[] = [
   { id: "starc", name: "Mitchell Starc", role: "Bowler", emoji: "🎯", country: "AUS",
     ability: "yorker", abilityLabel: "Yorker",
     abilityDesc: "Once per over: forces opponent to pick 1–3 only." },
+  { id: "boult", name: "Trent Boult", role: "Bowler", emoji: "🎯", country: "NZ",
+    ability: "yorker", abilityLabel: "Swing King",
+    abilityDesc: "Once per over: forces opponent to pick 1–3 only." },
+  { id: "shaheen", name: "Shaheen Afridi", role: "Bowler", emoji: "🎯", country: "PAK",
+    ability: "yorker", abilityLabel: "Toe Crusher",
+    abilityDesc: "Once per over: forces opponent to pick 1–3 only." },
+  { id: "rabada", name: "Kagiso Rabada", role: "Bowler", emoji: "🎯", country: "RSA",
+    ability: "yorker", abilityLabel: "Heat Seeker",
+    abilityDesc: "Once per over: forces opponent to pick 1–3 only." },
 
-  // Top bowlerswomen (2)
+  // ===== Bowlerwomen (3) =====
   { id: "ecclestone", name: "Sophie Ecclestone", role: "Bowlerwoman", emoji: "🎯", country: "ENG",
     ability: "yorker", abilityLabel: "Spin Trap",
     abilityDesc: "Once per over: forces opponent to pick 1–3 only." },
   { id: "ismail", name: "Shabnim Ismail", role: "Bowlerwoman", emoji: "🎯", country: "RSA",
     ability: "yorker", abilityLabel: "Express Yorker",
     abilityDesc: "Once per over: forces opponent to pick 1–3 only." },
+  { id: "schutt", name: "Megan Schutt", role: "Bowlerwoman", emoji: "🎯", country: "AUS",
+    ability: "yorker", abilityLabel: "Death Specialist",
+    abilityDesc: "Once per over: forces opponent to pick 1–3 only." },
 
-  // Top all-rounders (5) — mix of event-bias and runs-boost
+  // ===== All-Rounders (5 men + 1 woman) =====
   { id: "stokes", name: "Ben Stokes", role: "All-Rounder", emoji: "⚡", country: "ENG",
     ability: "runs-boost", abilityLabel: "Match-Winner",
     abilityDesc: "+15% chance to add a bonus run while batting." },
@@ -70,9 +94,12 @@ export const ROSTER: Character[] = [
   { id: "raza", name: "Sikandar Raza", role: "All-Rounder", emoji: "⚡", country: "ZIM",
     ability: "allrounder-event", abilityLabel: "Clutch Factor",
     abilityDesc: "Higher chance of bowling-side surprise events." },
-  { id: "omarzai", name: "Azmatullah Omarzai", role: "All-Rounder", emoji: "⚡", country: "AFG",
-    ability: "runs-boost", abilityLabel: "Power Game",
+  { id: "maxwell", name: "Glenn Maxwell", role: "All-Rounder", emoji: "⚡", country: "AUS",
+    ability: "runs-boost", abilityLabel: "Big Show",
     abilityDesc: "+15% chance to add a bonus run while batting." },
+  { id: "sciver", name: "Nat Sciver-Brunt", role: "All-Rounder", emoji: "⚡", country: "ENG",
+    ability: "allrounder-event", abilityLabel: "Dual Threat",
+    abilityDesc: "Higher chance of bowling-side surprise events." },
 ];
 
 export type Phase =

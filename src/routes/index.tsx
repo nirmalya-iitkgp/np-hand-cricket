@@ -17,7 +17,20 @@ import { EventOfferDialog } from "@/components/game/EventBanner";
 import { SuspenseOverlay } from "@/components/game/SuspenseOverlay";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Trophy, Swords, RotateCcw, BookOpen, Sparkles, Zap, Brain } from "lucide-react";
+import {
+  Trophy,
+  Swords,
+  RotateCcw,
+  BookOpen,
+  Sparkles,
+  Zap,
+  Brain,
+  Users,
+  Dices,
+  ShieldHalf,
+  Award,
+  ArrowRight,
+} from "lucide-react";
 import { buildCommentary, infoLine } from "@/game/commentary";
 import { EVENT_META, eventToActive, maybeTriggerEvent } from "@/game/events";
 import { chooseCpuMove } from "@/game/ai";
@@ -594,10 +607,11 @@ function PickupScreen({ onPick }: { onPick: (c: Character) => void }) {
   return (
     <div className="mx-auto max-w-3xl px-4 pt-6 pb-10 animate-fade-in">
       <header className="mb-5 text-center">
-        <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-primary/15 px-3 py-1 text-xs font-bold tracking-widest text-primary">
-          🏆 CHAMPIONSHIP
+        <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-3 py-1 font-display text-xs tracking-[0.3em] text-primary">
+          <Trophy className="h-3 w-3" strokeWidth={2.5} />
+          CHAMPIONSHIP
         </div>
-        <h1 className="bg-gradient-to-br from-primary to-primary-glow bg-clip-text text-4xl font-black tracking-tight text-transparent sm:text-5xl">
+        <h1 className="bg-gradient-to-br from-primary to-primary-glow bg-clip-text font-display text-5xl tracking-wide text-transparent sm:text-6xl">
           Hand Cricket
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
@@ -608,8 +622,8 @@ function PickupScreen({ onPick }: { onPick: (c: Character) => void }) {
       {/* How to play */}
       <Card className="mb-6 border-2 border-primary/30 bg-card/70 p-4 backdrop-blur">
         <div className="mb-3 flex items-center gap-2">
-          <BookOpen className="h-4 w-4 text-primary" />
-          <h2 className="text-sm font-black tracking-widest text-primary">HOW TO PLAY</h2>
+          <BookOpen className="h-4 w-4 text-primary" strokeWidth={2.5} />
+          <h2 className="font-display text-base tracking-widest text-primary">HOW TO PLAY</h2>
         </div>
         <ul className="grid gap-2 sm:grid-cols-2">
           {HOW_TO_PLAY.map((item, i) => (
@@ -622,8 +636,8 @@ function PickupScreen({ onPick }: { onPick: (c: Character) => void }) {
       </Card>
 
       {/* Roster grouped */}
-      <h2 className="mb-3 flex items-center gap-2 text-sm font-black tracking-widest text-muted-foreground">
-        <Sparkles className="h-4 w-4 text-primary" /> CHOOSE YOUR CHAMPION
+      <h2 className="mb-3 flex items-center gap-2 font-display text-base tracking-widest text-muted-foreground">
+        <Users className="h-4 w-4 text-primary" strokeWidth={2.5} /> CHOOSE YOUR CHAMPION
       </h2>
       <RosterSection title="Batsmen" filter={(c) => c.role === "Batsman"} onPick={onPick} />
       <RosterSection title="Batswomen" filter={(c) => c.role === "Batswoman"} onPick={onPick} />
@@ -647,10 +661,10 @@ function RosterSection({
   if (list.length === 0) return null;
   return (
     <div className="mb-4">
-      <h3 className="mb-1.5 text-[10px] font-bold tracking-[0.25em] text-muted-foreground">
+      <h3 className="mb-1.5 font-display text-[11px] tracking-[0.25em] text-muted-foreground">
         {title.toUpperCase()}
       </h3>
-      <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {list.map((c) => (
           <CharacterCard key={c.id} character={c} onClick={() => onPick(c)} />
         ))}
@@ -670,14 +684,14 @@ function VersusScreen({
 }) {
   return (
     <div className="mx-auto max-w-2xl px-4 pt-10 pb-8 animate-fade-in">
-      <h2 className="mb-6 text-center text-xs font-bold tracking-[0.3em] text-muted-foreground">
+      <h2 className="mb-6 text-center font-display text-sm tracking-[0.4em] text-muted-foreground">
         THE MATCH-UP
       </h2>
 
       <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-[1fr_auto_1fr]">
         <PlayerVersusCard side="YOU" character={player} accent="primary" />
         <div className="flex justify-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-2xl font-black text-accent-foreground shadow-lg animate-pop">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-accent font-display text-2xl tracking-wider text-accent-foreground shadow-lg animate-pop">
             VS
           </div>
         </div>
@@ -716,18 +730,18 @@ function PlayerVersusCard({
       className={`border-2 ${borderClass} bg-card/80 p-6 text-center animate-slide-up ${accent === "primary" ? "shadow-[var(--shadow-glow)]" : ""}`}
       style={delay ? { animationDelay: delay, animationFillMode: "backwards" } : undefined}
     >
-      <div className={`mb-2 text-xs font-bold tracking-widest ${labelClass}`}>{side}</div>
+      <div className={`mb-2 font-display text-sm tracking-[0.3em] ${labelClass}`}>{side}</div>
       <div
         className={`mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br ${gradientClass} text-4xl`}
       >
         {character.emoji}
       </div>
-      <div className="text-lg font-black tracking-tight">{character.name}</div>
+      <div className="font-display text-2xl tracking-wide">{character.name}</div>
       <div className="text-xs text-muted-foreground">
         {character.country} · {character.role}
       </div>
       <div className="mt-3 inline-flex items-center gap-1 rounded-full bg-accent/15 px-2 py-1 text-[10px] font-bold text-accent">
-        <Sparkles className="h-3 w-3" />
+        <ShieldHalf className="h-3 w-3" strokeWidth={2.5} />
         {character.abilityLabel}
       </div>
       <div className="mt-1 text-[10px] text-muted-foreground">{character.abilityDesc}</div>
@@ -743,13 +757,14 @@ function TossScreen({
   const [overs, setOvers] = useState<number>(3);
   return (
     <div className="mx-auto max-w-2xl px-4 pt-6 pb-10 animate-fade-in">
-      <div className="mb-1 text-center text-xs font-bold tracking-[0.3em] text-muted-foreground">
+      <div className="mb-1 inline-flex w-full items-center justify-center gap-1.5 text-center font-display text-sm tracking-[0.4em] text-muted-foreground">
+        <Dices className="h-3.5 w-3.5" strokeWidth={2.5} />
         YOU WON THE TOSS
       </div>
-      <h2 className="mb-5 text-center text-3xl font-black tracking-tight">Bat or Bowl?</h2>
+      <h2 className="mb-5 text-center font-display text-4xl tracking-wide">Bat or Bowl?</h2>
 
       <div className="mb-5">
-        <div className="mb-2 text-center text-xs font-bold tracking-widest text-muted-foreground">
+        <div className="mb-2 text-center font-display text-xs tracking-[0.3em] text-muted-foreground">
           OVERS PER INNINGS
         </div>
         <div className="mx-auto grid max-w-sm grid-cols-4 gap-2">
@@ -757,7 +772,7 @@ function TossScreen({
             <button
               key={n}
               onClick={() => setOvers(n)}
-              className={`rounded-xl border-2 py-2 text-sm font-black backdrop-blur-md transition-all ${
+              className={`rounded-xl border-2 py-2 font-display text-lg tracking-wider tabular-nums backdrop-blur-md transition-all ${
                 overs === n
                   ? "border-primary bg-primary/20 text-primary"
                   : "border-white/10 bg-card/40 hover:border-primary/50"
@@ -767,7 +782,7 @@ function TossScreen({
             </button>
           ))}
         </div>
-        <p className="mt-2 text-center text-xs text-muted-foreground">
+        <p className="mt-2 text-center text-xs tabular-nums text-muted-foreground">
           {overs * 6} balls per innings
         </p>
       </div>
@@ -778,7 +793,7 @@ function TossScreen({
           className="group flex flex-col items-center gap-1 rounded-2xl border-2 border-white/10 bg-card/40 p-5 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-primary hover:shadow-[var(--shadow-glow)]"
         >
           <span className="text-3xl">🏏</span>
-          <span className="text-base font-black">Bat First</span>
+          <span className="font-display text-xl tracking-wide">Bat First</span>
           <span className="text-[10px] text-muted-foreground">Set the target</span>
         </button>
         <button
@@ -786,7 +801,7 @@ function TossScreen({
           className="group flex flex-col items-center gap-1 rounded-2xl border-2 border-white/10 bg-card/40 p-5 backdrop-blur-md transition-all hover:-translate-y-1 hover:border-primary hover:shadow-[var(--shadow-glow)]"
         >
           <span className="text-3xl">🎯</span>
-          <span className="text-base font-black">Bowl First</span>
+          <span className="font-display text-xl tracking-wide">Bowl First</span>
           <span className="text-[10px] text-muted-foreground">Defend the chase</span>
         </button>
       </div>
@@ -794,8 +809,8 @@ function TossScreen({
       {/* Surprise events explanation */}
       <Card className="border border-white/10 bg-card/40 p-3 backdrop-blur-md">
         <div className="mb-2 flex items-center gap-2">
-          <Sparkles className="h-3.5 w-3.5 text-accent" />
-          <h3 className="text-[11px] font-black tracking-widest text-accent">
+          <Sparkles className="h-3.5 w-3.5 text-accent" strokeWidth={2.5} />
+          <h3 className="font-display text-xs tracking-[0.3em] text-accent">
             SURPRISE EVENTS
           </h3>
           <span className="text-[9px] text-muted-foreground">
@@ -810,7 +825,7 @@ function TossScreen({
             >
               <span className="text-sm leading-none">{meta.emoji}</span>
               <div className="min-w-0">
-                <div className="text-[10px] font-black leading-tight">
+                <div className="font-display text-[11px] leading-tight tracking-wide">
                   {meta.label}
                 </div>
                 <div className="text-[9px] leading-snug text-muted-foreground">
@@ -867,14 +882,14 @@ function PlayingScreen({
       ) : (
         <>
           <div className="mb-1.5 flex items-center justify-center gap-2">
-            <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold tracking-widest">
+            <span className="rounded-full bg-secondary px-2 py-0.5 font-display text-[11px] tracking-widest">
               YOU ARE {yourRole.toUpperCase()}
             </span>
             {showConcentration && (
               <span className="inline-flex items-center gap-1 rounded-full bg-warning/20 px-2 py-0.5 text-[10px] font-bold text-warning">
-                <Brain className="h-2.5 w-2.5" />
+                <Brain className="h-2.5 w-2.5" strokeWidth={2.5} />
                 {state.playerAbility.concentrationArmed
-                  ? "READY ✨"
+                  ? "READY"
                   : `${state.playerAbility.concentrationStreak}/3`}
               </span>
             )}
@@ -883,7 +898,7 @@ function PlayingScreen({
                 onClick={onUseYorker}
                 className="inline-flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold text-accent-foreground hover:opacity-90 active:scale-95"
               >
-                <Zap className="h-2.5 w-2.5" />
+                <Zap className="h-2.5 w-2.5" strokeWidth={2.5} />
                 {state.player?.abilityLabel}
               </button>
             )}
@@ -965,7 +980,7 @@ function RevealPanel({
 }) {
   return (
     <Card className="flex flex-col items-center gap-1 border-2 bg-card/60 p-2">
-      <div className="text-[9px] font-bold tracking-widest text-muted-foreground">{label}</div>
+      <div className="font-display text-[11px] tracking-widest text-muted-foreground">{label}</div>
       <HandIcon
         value={revealing ? null : move}
         hidden={revealing}
@@ -985,21 +1000,22 @@ function InningsBreak({
 }) {
   return (
     <div className="mx-auto max-w-md py-6 text-center animate-fade-in">
-      <div className="mb-2 text-xs font-bold tracking-[0.3em] text-muted-foreground">
+      <div className="mb-2 font-display text-sm tracking-[0.4em] text-muted-foreground">
         END OF INNINGS 1
       </div>
-      <h3 className="mb-4 text-3xl font-black tracking-tight">Innings Break</h3>
+      <h3 className="mb-4 font-display text-4xl tracking-wide">Innings Break</h3>
       <Card className="mb-4 border-2 border-primary/60 bg-card/80 p-5">
-        <div className="text-xs text-muted-foreground">TARGET TO CHASE</div>
-        <div className="my-1 bg-gradient-to-br from-primary to-primary-glow bg-clip-text text-5xl font-black text-transparent">
+        <div className="font-display text-xs tracking-[0.3em] text-muted-foreground">TARGET TO CHASE</div>
+        <div className="my-1 bg-gradient-to-br from-primary to-primary-glow bg-clip-text font-display text-6xl tracking-wide tabular-nums text-transparent">
           {state.target}
         </div>
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm tabular-nums text-muted-foreground">
           Need {state.target} run{state.target === 1 ? "" : "s"} in {state.oversPerInnings} overs · 3 wickets
         </div>
       </Card>
       <Button size="lg" onClick={onContinue} className="w-full font-bold">
         Start Innings 2
+        <ArrowRight className="ml-1 h-4 w-4" />
       </Button>
     </div>
   );
@@ -1025,25 +1041,25 @@ function ResultScreen({
               : "bg-destructive text-destructive-foreground"
         } animate-pop`}
       >
-        <Trophy className="h-10 w-10" />
+        {tied ? <Award className="h-10 w-10" strokeWidth={2.5} /> : <Trophy className="h-10 w-10" strokeWidth={2.5} />}
       </div>
-      <div className="mb-1 text-xs font-bold tracking-[0.3em] text-muted-foreground">
+      <div className="mb-1 font-display text-sm tracking-[0.4em] text-muted-foreground">
         {tied ? "ALL SQUARE" : youWon ? "VICTORY" : "DEFEAT"}
       </div>
-      <h2 className="mb-6 text-3xl font-black tracking-tight">{state.result}</h2>
+      <h2 className="mb-6 font-display text-4xl tracking-wide">{state.result}</h2>
 
       <Card className="mb-6 w-full border-2 bg-card/80 p-4">
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div>
             <div className="text-xs text-muted-foreground">{state.player?.name}</div>
-            <div className="text-2xl font-black">
+            <div className="font-display text-3xl tracking-wide tabular-nums">
               {state.playerScore}
               <span className="text-base text-muted-foreground">/{state.playerWickets}</span>
             </div>
           </div>
           <div>
             <div className="text-xs text-muted-foreground">{state.cpu?.name}</div>
-            <div className="text-2xl font-black">
+            <div className="font-display text-3xl tracking-wide tabular-nums">
               {state.cpuScore}
               <span className="text-base text-muted-foreground">/{state.cpuWickets}</span>
             </div>
