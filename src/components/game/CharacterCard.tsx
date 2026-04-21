@@ -7,14 +7,14 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { cn } from "@/lib/utils";
-import { Sparkles, Shield, Zap as ZapIcon, Target as TargetIcon, Brain } from "lucide-react";
+import { Sparkles, Shield, Zap, Circle, User } from "lucide-react";
 
 const ROLE_ICON: Record<string, ElementType> = {
-  Batsman: Brain,
-  Batswoman: Brain,
-  Bowler: TargetIcon,
-  Bowlerwoman: TargetIcon,
-  "All-Rounder": ZapIcon,
+  Batsman: User,
+  Batswoman: User,
+  Bowler: Circle,
+  Bowlerwoman: Circle,
+  "All-Rounder": Zap,
 };
 
 type Props = {
@@ -63,12 +63,11 @@ export function CharacterCard({ character, selected, onClick }: Props) {
             )}
           >
             <div className="flex items-center gap-2">
-              <div
-                className={cn(
-                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-glow text-base text-primary-foreground shadow-inner",
-                )}
-              >
-                {character.emoji}
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center text-primary">
+                {(() => {
+                  const Icon = ROLE_ICON[character.role] ?? User;
+                  return <Icon className="h-5 w-5" strokeWidth={1.5} />;
+                })()}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="truncate font-display text-[13px] font-normal leading-tight tracking-wide">
@@ -86,10 +85,6 @@ export function CharacterCard({ character, selected, onClick }: Props) {
                   <span className="truncate text-[8px] font-semibold text-muted-foreground">
                     {character.country}
                   </span>
-                  {(() => {
-                    const Icon = ROLE_ICON[character.role] ?? Sparkles;
-                    return <Icon className="h-2.5 w-2.5 shrink-0 text-accent" strokeWidth={2.5} />;
-                  })()}
                 </div>
               </div>
             </div>
@@ -102,8 +97,11 @@ export function CharacterCard({ character, selected, onClick }: Props) {
         className="w-64 border border-primary/40 bg-card/95 backdrop-blur-xl"
       >
         <div className="flex items-start gap-2">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-glow text-lg">
-            {character.emoji}
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center text-primary">
+            {(() => {
+              const Icon = ROLE_ICON[character.role] ?? Sparkles;
+              return <Icon className="h-7 w-7" strokeWidth={1.5} />;
+            })()}
           </div>
           <div className="min-w-0">
             <div className="font-display text-base font-normal tracking-wide">
